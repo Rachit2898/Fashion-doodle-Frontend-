@@ -1,4 +1,63 @@
+import React, { useState } from "react";
 function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [userType, setUserType] = useState({
+    model: false,
+    user: false,
+    admin: false,
+  });
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+    setError("");
+  };
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+    setError("");
+  };
+
+  const handleCheckboxChange = (name) => {
+    setUserType((prevUserType) => ({
+      ...prevUserType,
+      [name]: !prevUserType[name],
+    }));
+  };
+
+  const handleSignupClick = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{12,}$/;
+
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    if (!passwordRegex.test(password)) {
+      setError(
+        "Password must be at least 12 characters with at least one special character, one lowercase letter, and one uppercase letter"
+      );
+      return;
+    }
+
+    setEmail("");
+    setPassword("");
+    setUserType({
+      model: false,
+      user: false,
+      admin: false,
+    });
+
+    console.log("Signup successful!");
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
   return (
     <div class="bg-gradient-to-r lg:h-screen md:h-screen  from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[20%] p-5">
       <div class=" rounded-lg bg-white ">
@@ -21,8 +80,10 @@ function SignIn() {
                 </p>
 
                 <input
+                  value={email}
+                  onChange={handleEmailChange}
                   type="text"
-                  class="bg-[#c0dbea]  h-12  w-[100%] border border-gray-300 focus:outline-none focus:border-blue-500"
+                  class="bg-[#c0dbea] px-2 h-12  w-[100%] border border-gray-300 focus:outline-none focus:border-blue-500"
                 />
               </div>
               <div class="">
@@ -35,31 +96,75 @@ function SignIn() {
                   </p>
                 </div>
 
-                <input
-                  type="text"
-                  class="bg-[#c0dbea]  h-12  w-[100%] border border-gray-300 focus:outline-none focus:border-blue-500"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={handlePasswordChange}
+                    className="bg-[#c0dbea] px-2 h-12 w-[100%] border border-gray-300 focus:outline-none focus:border-blue-500"
+                  />
+                  <span
+                    className="absolute right-0 top-0 mt-3 mr-4 cursor-pointer"
+                    onClick={handleTogglePasswordVisibility}
+                  >
+                    {showPassword ? (
+                      <img
+                        src={require("../images/show.png")}
+                        alt="Search Icon"
+                        class="h-6"
+                      />
+                    ) : (
+                      <img
+                        src={require("../images/hide.png")}
+                        alt="Search Icon"
+                        class="h-6"
+                      />
+                    )}
+                  </span>
+                </div>
               </div>
               <div class="flex justify-between pt-4">
                 <label class="inline-flex items-center">
-                  <input type="checkbox" name="model" class="form-checkbox" />
+                  <input
+                    checked={userType.model}
+                    onChange={() => handleCheckboxChange("model")}
+                    type="checkbox"
+                    name="model"
+                    class="form-checkbox"
+                  />
                   <span class="ml-2">Model</span>
                 </label>
 
                 <label class="inline-flex items-center">
-                  <input type="checkbox" name="user" class="form-checkbox" />
+                  <input
+                    checked={userType.user}
+                    onChange={() => handleCheckboxChange("user")}
+                    type="checkbox"
+                    name="user"
+                    class="form-checkbox"
+                  />
                   <span class="ml-2">User</span>
                 </label>
 
                 <label class="inline-flex items-center">
-                  <input type="checkbox" name="admin" class="form-checkbox" />
+                  <input
+                    type="checkbox"
+                    checked={userType.admin}
+                    onChange={() => handleCheckboxChange("admin")}
+                    name="admin"
+                    class="form-checkbox"
+                  />
                   <span class="ml-2">Admin</span>
                 </label>
               </div>
+              {error && <p className="text-red-500 font-[300]">{error}</p>}
               <div class="w-48 h-10 bg-[#7D97AA] rounded-full flex items-center justify-center mx-auto my-5">
-                <p class="text-white font-poppins text-20 font-extrabold leading-normal">
+                <button
+                  onClick={handleSignupClick}
+                  class="text-white font-poppins text-20 font-extrabold leading-normal"
+                >
                   Lets Begin...
-                </p>
+                </button>
               </div>
               <div class=" flex flex-col  ">
                 <div class="w-[80%]   mx-auto">
@@ -155,7 +260,7 @@ function SignIn() {
           </div>
           <div class="flex  justify-end mt-5 lg:mt-0 ">
             <img
-              src="https://s3-alpha-sig.figma.com/img/a4cd/d459/3934348bd0b6c7e61309a2d8798e6527?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=nMIe~dnr7ya7udsI-Ow09D-x~NDgaskkzk6r6~Xob11OvQPLY9C4stn1rtHhNPve5Z7iF1Xx3R-X4v0JxqZIVrz03bWiqfkBcwxWXCXWbAEtg57BWxHu-J1F-vVGP7xX4oH0o5jkjJzMOk~S1HVQ5L5VJgZVXIcFcWi9SGnEFZ5etxcageOKbiin~srZVNE5LyBEGrampYznojuiz2dPrEOFLHwWcNOtDUiWZiTOIGUhqZOGX7JjJgdpBkpfIoA9l-CAiGH0LyfE8JGkuYaaenfh-8zyREGLSyUpPTlE8cWb2lSKz593n8MY8O3KcJDfjZJlKMfZG92Ib~iTA7e7vw__"
+              src="https://s3-alpha-sig.figma.com/img/34f3/e010/c5df3f72930cd31c673789672c9d5d04?Expires=1708300800&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=ki-dvLP7rpZjigeGk-Nc6o7AoGkcxbnikOeLBFoMqu~pOlKSqPpqG1Lf9gwvecdYYTlegJteyywylej~hm4XVq2KgBTfJIZxxpDaIlhvmvEJxEAoXyhuPFpKTsGcXGhB7eo6Uhma~q9kE3FgA7mq~ICB4hkj638A~gdSJRogwSyCgsZQGc3VFjSTU1gk2CD74C3ibW9iGkLVAn0SOc2YBMXNpGwN-lN59GvxipWNM4W51NVQu6bHTEwbLB0vL3XYrwoaK6JtlR3Hg8JerS51iFLDiCyGrFygIPgbiMIkVwjGvUf4IbBnA2EiXtwdeNniLFkdtZGosKkIDC5tMVS2rg__"
               alt="Your Image"
               class="lg:h-[83.7vh]  rounded-lg"
             />

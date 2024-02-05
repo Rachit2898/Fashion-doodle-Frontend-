@@ -1,4 +1,39 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+    setError("");
+  };
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+    setError("");
+  };
+
+  const handleLoginClick = () => {
+    if (!email || !password) {
+      setError("Please fill in both email and password");
+      return;
+    }
+
+    if (email === "admin@admin.mail" && password === "Admin123") {
+      navigate("/designers");
+    } else {
+      setError("Invalid email or password");
+    }
+  };
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
   return (
     <div class="bg-gradient-to-r lg:h-screen md:h-screen  from-[rgba(219,0,158,0.11)] to- lg:py-[5%] lg:pl-[9%] lg:pr-[20%] p-5">
       <div class=" rounded-lg bg-white ">
@@ -22,7 +57,9 @@ function SignIn() {
 
                 <input
                   type="text"
-                  class="bg-[#c0dbea]  h-12  w-[100%] border border-gray-300 focus:outline-none focus:border-blue-500"
+                  value={email}
+                  onChange={handleEmailChange}
+                  class="bg-[#c0dbea]  h-12 px-2  w-[100%] border border-gray-300 focus:outline-none focus:border-blue-500"
                 />
               </div>
               <div class="">
@@ -35,17 +72,44 @@ function SignIn() {
                   </p>
                 </div>
 
-                <input
-                  type="text"
-                  class="bg-[#c0dbea]  h-12  w-[100%] border border-gray-300 focus:outline-none focus:border-blue-500"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={handlePasswordChange}
+                    className="bg-[#c0dbea] px-2 h-12 w-[100%] border border-gray-300 focus:outline-none focus:border-blue-500"
+                  />
+                  <span
+                    className="absolute right-0 top-0 mt-3 mr-4 cursor-pointer"
+                    onClick={handleTogglePasswordVisibility}
+                  >
+                    {showPassword ? (
+                      <img
+                        src={require("../images/show.png")}
+                        alt="Search Icon"
+                        class="h-6"
+                      />
+                    ) : (
+                      <img
+                        src={require("../images/hide.png")}
+                        alt="Search Icon"
+                        class="h-6"
+                      />
+                    )}
+                  </span>
+                </div>
               </div>
+              {error && <p className="text-red-500 font-[300]">{error}</p>}
 
               <div class="w-48 h-10 bg-[#7D97AA] rounded-full flex items-center justify-center mx-auto my-5">
-                <p class="text-white font-poppins text-20 font-extrabold leading-normal">
+                <button
+                  onClick={handleLoginClick}
+                  class="text-white font-poppins text-20 font-extrabold leading-normal"
+                >
                   LOGIN
-                </p>
+                </button>
               </div>
+
               <div class=" flex flex-col  ">
                 <div class="w-[80%] lg:w-[80%]  mx-auto">
                   <div class="flex justify-around pt-4 lg:pt-0">
@@ -140,7 +204,7 @@ function SignIn() {
           </div>
           <div class="flex  justify-end mt-5 lg:mt-0 ">
             <img
-              src="https://s3-alpha-sig.figma.com/img/34f3/e010/c5df3f72930cd31c673789672c9d5d04?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=M-27SoVYNMsFNv~R~oXuvsdDrQandRBnzUK8mtXB3Y-gy4DO20Az0VLvEg~PXBHfVpfuyeaVOdOl~d7KYsIBUAN4AmpX3FpS70EcmsyVIoKVEwdgrZiwiInZW5f9nA95X09jK7I1bCUkVrNIEJRA9BsvsE3F1DsVJsMvVPjukhLKTJjgX3R84hrntcdficI4uWlgIfvn3uJ-Di971A2z6VmRo7th5FSbv24r7pO16c3nrAN9b8ZHpxpBEGJC0tz2D-vi5r6olbNNX-GS02qAmfXdz6UgCZsMNSYX~m4wqSP1Kx~7YkEhNNraa2i4YZ4WyxaXB6Ck8PuNUuO0EtlrEw__"
+              src="https://s3-alpha-sig.figma.com/img/a4cd/d459/3934348bd0b6c7e61309a2d8798e6527?Expires=1708300800&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=fhm2kz8j-Ilc2sjIHqP~xCzRZ-i2ZVxM7jwzXYLBirUTSCc1YMxyIl3OfnPq7OC82qBC7PNvUVvqPW0qhsRNDbaDNwBOSX2ZUP-gyVA3SE4dMjGje4i-c5qqKn-caz0PkUUhlNz7W82kS7n6gbjhCyXuYnsGMm37lIaV7QovKBvWOL~cpjvQXp2pRINKNnK~on0k8eXYxMsK4bG-HfQQx1~G3krvOb-XqyD0TlTA-DpdpZJmzTYIIu8OsVhJGI~fZQP4wYvqAWlcyTPaWaK~YUL93X2O2dK5kXoWp0nI429t-BlU8Rq9t-a0jitnba~Rn5cB9c4m0svtzOa7WyNbhg__"
               class="lg:h-[83.7vh]  rounded-lg"
             />
           </div>
