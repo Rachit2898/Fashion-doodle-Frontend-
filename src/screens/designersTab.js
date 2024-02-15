@@ -1,6 +1,76 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import LeftSideBar from "../components/leftSideBar";
 import Search from "../images/search.png";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
+
+import {
+  getPostById,
+  getAllPosts,
+  likePost,
+  incrementLikes,
+} from "../redux/features/post";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import BottomBar from "../components/bottomBar";
+import { Emoji } from "emoji-mart";
+
 export default function DesignersTab() {
+  const navigate = useNavigate();
+
+  const [showEmojis, setShowEmojis] = useState(false);
+  const [comment, setComment] = useState("");
+  const { postByIdData, allPostsData } = useSelector((state) => ({
+    ...state.post,
+  }));
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getAllPosts());
+  }, []);
+
+  console.log(postByIdData);
+
+  function getTimeAgo(timestamp) {
+    const now = new Date();
+    const createdAt = new Date(timestamp);
+
+    const timeDifferenceInSeconds = Math.floor((now - createdAt) / 1000);
+
+    if (timeDifferenceInSeconds < 60) {
+      return `${timeDifferenceInSeconds}s`;
+    } else if (timeDifferenceInSeconds < 3600) {
+      const minutes = Math.floor(timeDifferenceInSeconds / 60);
+      return `${minutes}m`;
+    } else if (timeDifferenceInSeconds < 86400) {
+      const hours = Math.floor(timeDifferenceInSeconds / 3600);
+      return `${hours}h`;
+    } else {
+      const days = Math.floor(timeDifferenceInSeconds / 86400);
+      return `${days}d`;
+    }
+  }
+
+  // Example usage:
+  const timestamp = "2024-02-13T11:01:57.000Z";
+  const formattedTimeAgo = getTimeAgo(timestamp);
+  console.log(formattedTimeAgo);
+
+  const likePostHandler = (id) => {
+    dispatch(likePost({ userId: 6, postId: id }));
+    dispatch(incrementLikes(id));
+  };
+
+  const emojisHandler = (emoji) => {
+    console.log(emoji.native);
+    setComment((prevComment) => prevComment + emoji.native);
+  };
+
+  const handleCommentType = (event) => {
+    setComment(event.target.value);
+  };
+
+  console.log(comment);
+
   return (
     <div class="bg-gradient-to-r lg:h-full md:h-screen from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[15%] p-5">
       <div class="rounded-lg bg-white pb-[3%]">
@@ -24,81 +94,10 @@ export default function DesignersTab() {
 
         <div class="flex   ">
           <div class="lg:w-1/4 mt-24 hidden sm:block lg:flex lg:flex-col  z-50">
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/feed.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Feed</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/explore.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Explore</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/multi-user.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Trending</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/service-bell.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Notifications</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/envelope.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Direct</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/wishlist.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">My Wishlist</p>
-              </div>
-            </div>
+            <LeftSideBar />
           </div>
           <div class="lg:w-1/2 sm:w-[100%] px-2 lg:px-0">
-            <div class="mx-8">
+            <div class="mx-0 lg:mx-8">
               <div class="flex items-center relative   mt-2">
                 <div class="w-[100%]">
                   <img
@@ -160,216 +159,169 @@ export default function DesignersTab() {
                 </div>
               </div>
             </div>
-            <div class="bg-[#F8F5F5] py-3  mt-5">
-              <div class="flex justify-between px-8 ">
-                <div class="flex ">
-                  <img
-                    src={require("../images/Ellipse.jpg")}
-                    alt="Search Icon"
-                    className="h-8 rounded-full p-[3px]"
-                  />
-                  <div>
-                    <p class="text-[12px] font-normal ">Jerry Mathews</p>
-                    <p class="text-[10px] font-normal opacity-[0.6] ">
-                      New York City,NY
-                    </p>
+            {allPostsData?.Posts?.map((item) => {
+              return (
+                <div class="bg-[#F8F5F5] py-3  mt-5">
+                  {showEmojis ? (
+                    <div class="flex absolute z-50">
+                      <Picker
+                        data={data}
+                        onEmojiSelect={(item) => {
+                          emojisHandler(item);
+                        }}
+                      />
+                    </div>
+                  ) : null}
+                  <div class="flex justify-between px-8 ">
+                    <div class="flex ">
+                      <img
+                        src={require("../images/Ellipse.jpg")}
+                        alt="Search Icon"
+                        className="h-8 rounded-full p-[3px]"
+                      />
+                      <div>
+                        <p class="text-[12px] font-normal ">Jerry Mathews</p>
+                        <p class="text-[10px] font-normal opacity-[0.6] ">
+                          New York City,NY
+                        </p>
+                      </div>
+                    </div>
+                    <div class="flex items-center">
+                      <p class="text-[10px] font-normal opacity-[0.6] ">
+                        {getTimeAgo(item.created_at)} ago
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div class="flex items-center">
-                  <p class="text-[10px] font-normal opacity-[0.6] ">25m ago</p>
-                </div>
-              </div>
-              <div class="flex items-center justify-center mt-2 px-16">
-                <img
-                  src={require("../images/Rectangle.png")}
-                  alt="Search Icon"
-                  className="  p-[3px]"
-                />
-              </div>
+                  <div class="flex items-center justify-center mt-2 px-16">
+                    <img
+                      src={item.imageUrls}
+                      alt="Search Icon"
+                      className="  p-[3px]"
+                    />
+                  </div>
 
-              <div class="flex gap-10 ml-5 my-3">
-                <div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="27"
-                    height="27"
-                    viewBox="0 0 27 27"
-                    fill="none"
-                  >
-                    <rect
-                      x="1.42773"
-                      y="0.907593"
+                  <div class="flex gap-10 ml-5 ">
+                    <button
+                      onClick={() => {
+                        likePostHandler(item.id);
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="27"
+                        height="27"
+                        viewBox="0 0 27 27"
+                        fill="none"
+                      >
+                        <rect
+                          x="1.42773"
+                          y="0.907593"
+                          width="25"
+                          height="25"
+                          stroke="white"
+                        />
+                        <path
+                          d="M7.92779 19.532V20.2931C7.92779 20.9136 7.42478 21.4166 6.80429 21.4166V21.4166C6.18379 21.4166 5.68079 20.9136 5.68079 20.2931V11.5341C5.68079 10.9136 6.18379 10.4106 6.80429 10.4106V10.4106C7.42478 10.4106 7.92779 10.9136 7.92779 11.5341V12.4293M7.92779 19.532L8.67716 20.2382C9.23034 20.7594 9.50692 21.0201 9.84583 21.2051C9.95403 21.2641 10.0789 21.3223 10.1937 21.367C10.5535 21.5073 10.9129 21.5491 11.6319 21.6326C12.6846 21.755 14.0056 21.8872 14.9278 21.9052C15.6213 21.9188 16.4378 21.873 17.2264 21.8048C18.5113 21.6935 19.1537 21.6379 19.7531 21.2741C19.9374 21.1623 20.1419 21.0035 20.2959 20.8526C20.7967 20.3619 21.0288 19.6986 21.4928 18.372L22.6872 14.9578C23.3122 13.1708 22.0683 11.2783 20.18 11.1433L18.1957 11.0015C17.5229 10.9534 17.0449 10.3259 17.1772 9.6644V9.6644C17.5548 8.34445 17.5539 7.20923 17.1744 6.01798C16.9509 5.31654 16.2669 4.90759 15.5456 4.90759C15.0405 4.90759 14.56 5.12385 14.3561 5.59644C13.9567 6.52225 13.2824 8.42595 12.2995 9.4312C10.8387 10.9252 9.76571 11.7936 7.92779 12.4293M7.92779 19.532V12.4293"
+                          stroke="#292556"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      <p>{item.likesCount}</p>
+                    </button>
+                    <div>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="25"
+                        height="25"
+                        viewBox="0 0 25 25"
+                        fill="none"
+                      >
+                        <path
+                          d="M7.42773 17.4076V17.4076C5.2186 17.4076 3.42773 15.6167 3.42773 13.4076V10.9076C3.42773 8.57296 3.42773 7.40564 3.90005 6.52201C4.27298 5.8243 4.84444 5.25284 5.54215 4.87991C6.42579 4.40759 7.5931 4.40759 9.92773 4.40759H14.9277C17.2624 4.40759 18.4297 4.40759 19.3133 4.87991C20.011 5.25284 20.5825 5.8243 20.9554 6.52201C21.4277 7.40564 21.4277 8.57296 21.4277 10.9076V10.9076C21.4277 13.2422 21.4277 14.4095 20.9554 15.2932C20.5825 15.9909 20.011 16.5623 19.3133 16.9353C18.4297 17.4076 17.2624 17.4076 14.9277 17.4076H12.4277"
+                          stroke="#292556"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M7.42773 17.4076L6.42773 20.4076L12.4277 17.4076"
+                          stroke="#292556"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      <p>{item.commentsCount}</p>
+                    </div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
                       width="25"
                       height="25"
-                      stroke="white"
-                    />
-                    <path
-                      d="M7.92779 19.532V20.2931C7.92779 20.9136 7.42478 21.4166 6.80429 21.4166V21.4166C6.18379 21.4166 5.68079 20.9136 5.68079 20.2931V11.5341C5.68079 10.9136 6.18379 10.4106 6.80429 10.4106V10.4106C7.42478 10.4106 7.92779 10.9136 7.92779 11.5341V12.4293M7.92779 19.532L8.67716 20.2382C9.23034 20.7594 9.50692 21.0201 9.84583 21.2051C9.95403 21.2641 10.0789 21.3223 10.1937 21.367C10.5535 21.5073 10.9129 21.5491 11.6319 21.6326C12.6846 21.755 14.0056 21.8872 14.9278 21.9052C15.6213 21.9188 16.4378 21.873 17.2264 21.8048C18.5113 21.6935 19.1537 21.6379 19.7531 21.2741C19.9374 21.1623 20.1419 21.0035 20.2959 20.8526C20.7967 20.3619 21.0288 19.6986 21.4928 18.372L22.6872 14.9578C23.3122 13.1708 22.0683 11.2783 20.18 11.1433L18.1957 11.0015C17.5229 10.9534 17.0449 10.3259 17.1772 9.6644V9.6644C17.5548 8.34445 17.5539 7.20923 17.1744 6.01798C16.9509 5.31654 16.2669 4.90759 15.5456 4.90759C15.0405 4.90759 14.56 5.12385 14.3561 5.59644C13.9567 6.52225 13.2824 8.42595 12.2995 9.4312C10.8387 10.9252 9.76571 11.7936 7.92779 12.4293M7.92779 19.532V12.4293"
-                      stroke="#292556"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <p>800</p>
-                </div>
-                <div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="25"
-                    height="25"
-                    viewBox="0 0 25 25"
-                    fill="none"
-                  >
-                    <path
-                      d="M7.42773 17.4076V17.4076C5.2186 17.4076 3.42773 15.6167 3.42773 13.4076V10.9076C3.42773 8.57296 3.42773 7.40564 3.90005 6.52201C4.27298 5.8243 4.84444 5.25284 5.54215 4.87991C6.42579 4.40759 7.5931 4.40759 9.92773 4.40759H14.9277C17.2624 4.40759 18.4297 4.40759 19.3133 4.87991C20.011 5.25284 20.5825 5.8243 20.9554 6.52201C21.4277 7.40564 21.4277 8.57296 21.4277 10.9076V10.9076C21.4277 13.2422 21.4277 14.4095 20.9554 15.2932C20.5825 15.9909 20.011 16.5623 19.3133 16.9353C18.4297 17.4076 17.2624 17.4076 14.9277 17.4076H12.4277"
-                      stroke="#292556"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M7.42773 17.4076L6.42773 20.4076L12.4277 17.4076"
-                      stroke="#292556"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <p>120</p>
-                </div>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="25"
-                  height="25"
-                  viewBox="0 0 25 25"
-                  fill="none"
-                >
-                  <path
-                    d="M10.4277 10.4076L15.9277 7.40759M10.4277 14.4076L15.9277 17.4076M18.9277 21.4076V21.4076C20.5846 21.4076 21.9277 20.0644 21.9277 18.4076V18.4076C21.9277 16.7507 20.5846 15.4076 18.9277 15.4076V15.4076C17.2709 15.4076 15.9277 16.7507 15.9277 18.4076V18.4076C15.9277 20.0644 17.2709 21.4076 18.9277 21.4076ZM18.9277 9.40759V9.40759C20.5846 9.40759 21.9277 8.06445 21.9277 6.40759V6.40759C21.9277 4.75074 20.5846 3.40759 18.9277 3.40759V3.40759C17.2709 3.40759 15.9277 4.75074 15.9277 6.40759V6.40759C15.9277 8.06445 17.2709 9.40759 18.9277 9.40759ZM7.42773 15.9076V15.9076C9.36073 15.9076 10.9277 14.3406 10.9277 12.4076V12.4076C10.9277 10.4746 9.36073 8.90759 7.42773 8.90759V8.90759C5.49474 8.90759 3.92773 10.4746 3.92773 12.4076V12.4076C3.92773 14.3406 5.49474 15.9076 7.42773 15.9076Z"
-                    stroke="#292556"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
-              <div className="flex ml-5">
-                <div className="w-8 h-8 rounded-full bg-[#B48E8E] ml-0 z-10"></div>
+                      viewBox="0 0 25 25"
+                      fill="none"
+                    >
+                      <path
+                        d="M10.4277 10.4076L15.9277 7.40759M10.4277 14.4076L15.9277 17.4076M18.9277 21.4076V21.4076C20.5846 21.4076 21.9277 20.0644 21.9277 18.4076V18.4076C21.9277 16.7507 20.5846 15.4076 18.9277 15.4076V15.4076C17.2709 15.4076 15.9277 16.7507 15.9277 18.4076V18.4076C15.9277 20.0644 17.2709 21.4076 18.9277 21.4076ZM18.9277 9.40759V9.40759C20.5846 9.40759 21.9277 8.06445 21.9277 6.40759V6.40759C21.9277 4.75074 20.5846 3.40759 18.9277 3.40759V3.40759C17.2709 3.40759 15.9277 4.75074 15.9277 6.40759V6.40759C15.9277 8.06445 17.2709 9.40759 18.9277 9.40759ZM7.42773 15.9076V15.9076C9.36073 15.9076 10.9277 14.3406 10.9277 12.4076V12.4076C10.9277 10.4746 9.36073 8.90759 7.42773 8.90759V8.90759C5.49474 8.90759 3.92773 10.4746 3.92773 12.4076V12.4076C3.92773 14.3406 5.49474 15.9076 7.42773 15.9076Z"
+                        stroke="#292556"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex ml-5">
+                    <div className="w-8 h-8 rounded-full bg-[#B48E8E] ml-0 z-10"></div>
 
-                <div className="w-8 h-8 rounded-full bg-[#D9D9D9] ml-[-15px] z-20"></div>
+                    <div className="w-8 h-8 rounded-full bg-[#D9D9D9] ml-[-15px] z-20"></div>
 
-                <div className="w-8 h-8 rounded-full bg-yellow-500 ml-[-15px] z-30"></div>
-                <div class="items-start pl-5">
-                  <p>Liked by dj dynamo and 500 others</p>
-                </div>
-              </div>
-            </div>
-            <div class="bg-[#F8F5F5] py-3 mt-5">
-              <div class="flex justify-between px-8 ">
-                <div class="flex ">
-                  <img
-                    src={require("../images/Ellipse.jpg")}
-                    alt="Search Icon"
-                    className="h-8 rounded-full p-[3px]"
-                  />
-                  <div>
-                    <p class="text-[12px] font-normal ">Jerry Mathews</p>
-                    <p class="text-[10px] font-normal opacity-[0.6] ">
-                      New York City,NY
-                    </p>
+                    <div className="w-8 h-8 rounded-full bg-yellow-500 ml-[-15px] z-30"></div>
+                    <div class="items-start pl-5">
+                      <p>Liked by dj dynamo and 500 others</p>
+                    </div>
+                  </div>
+                  <div className="flex m-5  flex-row  ">
+                    <div className=" bg-white flex w-full flex-row  justify-between items-center rounded-lg">
+                      <button onClick={() => setShowEmojis(true)} class="ml-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </button>
+                      <textarea
+                        multiple
+                        value={comment}
+                        onChange={handleCommentType}
+                        onClick={() => {
+                          setShowEmojis(false);
+                        }}
+                        type="text"
+                        placeholder="Add a comment..."
+                        className="border  h-10 flex items-center justify-center resize-none border-gray-300  p-2 w-5/6 border-none focus:outline-none focus:border-none rounded-l-md"
+                      />
+                      <button className=" text-white p-2 rounded-r-md">
+                        <img
+                          src={require("../images/post.png")}
+                          alt="Search Icon"
+                          className="h-5"
+                        />
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <div class="flex items-center">
-                  <p class="text-[10px] font-normal opacity-[0.6] ">25m ago</p>
-                </div>
-              </div>
-              <div class="flex items-center justify-center mt-2 px-16">
-                <img
-                  src={require("../images/Rectangle.png")}
-                  alt="Search Icon"
-                  className="  p-[3px]"
-                />
-              </div>
-
-              <div class="flex gap-10 ml-5 my-3">
-                <div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="27"
-                    height="27"
-                    viewBox="0 0 27 27"
-                    fill="none"
-                  >
-                    <rect
-                      x="1.42773"
-                      y="0.907593"
-                      width="25"
-                      height="25"
-                      stroke="white"
-                    />
-                    <path
-                      d="M7.92779 19.532V20.2931C7.92779 20.9136 7.42478 21.4166 6.80429 21.4166V21.4166C6.18379 21.4166 5.68079 20.9136 5.68079 20.2931V11.5341C5.68079 10.9136 6.18379 10.4106 6.80429 10.4106V10.4106C7.42478 10.4106 7.92779 10.9136 7.92779 11.5341V12.4293M7.92779 19.532L8.67716 20.2382C9.23034 20.7594 9.50692 21.0201 9.84583 21.2051C9.95403 21.2641 10.0789 21.3223 10.1937 21.367C10.5535 21.5073 10.9129 21.5491 11.6319 21.6326C12.6846 21.755 14.0056 21.8872 14.9278 21.9052C15.6213 21.9188 16.4378 21.873 17.2264 21.8048C18.5113 21.6935 19.1537 21.6379 19.7531 21.2741C19.9374 21.1623 20.1419 21.0035 20.2959 20.8526C20.7967 20.3619 21.0288 19.6986 21.4928 18.372L22.6872 14.9578C23.3122 13.1708 22.0683 11.2783 20.18 11.1433L18.1957 11.0015C17.5229 10.9534 17.0449 10.3259 17.1772 9.6644V9.6644C17.5548 8.34445 17.5539 7.20923 17.1744 6.01798C16.9509 5.31654 16.2669 4.90759 15.5456 4.90759C15.0405 4.90759 14.56 5.12385 14.3561 5.59644C13.9567 6.52225 13.2824 8.42595 12.2995 9.4312C10.8387 10.9252 9.76571 11.7936 7.92779 12.4293M7.92779 19.532V12.4293"
-                      stroke="#292556"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <p>800</p>
-                </div>
-                <div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="25"
-                    height="25"
-                    viewBox="0 0 25 25"
-                    fill="none"
-                  >
-                    <path
-                      d="M7.42773 17.4076V17.4076C5.2186 17.4076 3.42773 15.6167 3.42773 13.4076V10.9076C3.42773 8.57296 3.42773 7.40564 3.90005 6.52201C4.27298 5.8243 4.84444 5.25284 5.54215 4.87991C6.42579 4.40759 7.5931 4.40759 9.92773 4.40759H14.9277C17.2624 4.40759 18.4297 4.40759 19.3133 4.87991C20.011 5.25284 20.5825 5.8243 20.9554 6.52201C21.4277 7.40564 21.4277 8.57296 21.4277 10.9076V10.9076C21.4277 13.2422 21.4277 14.4095 20.9554 15.2932C20.5825 15.9909 20.011 16.5623 19.3133 16.9353C18.4297 17.4076 17.2624 17.4076 14.9277 17.4076H12.4277"
-                      stroke="#292556"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M7.42773 17.4076L6.42773 20.4076L12.4277 17.4076"
-                      stroke="#292556"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <p>120</p>
-                </div>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="25"
-                  height="25"
-                  viewBox="0 0 25 25"
-                  fill="none"
-                >
-                  <path
-                    d="M10.4277 10.4076L15.9277 7.40759M10.4277 14.4076L15.9277 17.4076M18.9277 21.4076V21.4076C20.5846 21.4076 21.9277 20.0644 21.9277 18.4076V18.4076C21.9277 16.7507 20.5846 15.4076 18.9277 15.4076V15.4076C17.2709 15.4076 15.9277 16.7507 15.9277 18.4076V18.4076C15.9277 20.0644 17.2709 21.4076 18.9277 21.4076ZM18.9277 9.40759V9.40759C20.5846 9.40759 21.9277 8.06445 21.9277 6.40759V6.40759C21.9277 4.75074 20.5846 3.40759 18.9277 3.40759V3.40759C17.2709 3.40759 15.9277 4.75074 15.9277 6.40759V6.40759C15.9277 8.06445 17.2709 9.40759 18.9277 9.40759ZM7.42773 15.9076V15.9076C9.36073 15.9076 10.9277 14.3406 10.9277 12.4076V12.4076C10.9277 10.4746 9.36073 8.90759 7.42773 8.90759V8.90759C5.49474 8.90759 3.92773 10.4746 3.92773 12.4076V12.4076C3.92773 14.3406 5.49474 15.9076 7.42773 15.9076Z"
-                    stroke="#292556"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
-              <div className="flex ml-5">
-                <div className="w-8 h-8 rounded-full bg-[#B48E8E] ml-0 z-10"></div>
-
-                <div className="w-8 h-8 rounded-full bg-[#D9D9D9] ml-[-15px] z-20"></div>
-
-                <div className="w-8 h-8 rounded-full bg-yellow-500 ml-[-15px] z-30"></div>
-                <div class="items-start pl-5">
-                  <p>Liked by dj dynamo and 500 others</p>
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
           <div class="lg:w-1/4 hidden sm:block lg:flex lg:flex-col  ">
             <div class=" items-center h-10 flex-row flex justify-center font-[Poppins]  gap-10  ">
@@ -429,20 +381,22 @@ export default function DesignersTab() {
                   </clipPath>
                 </defs>
               </svg>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="22"
-                height="22"
-                viewBox="0 0 42 42"
-                fill="none"
-              >
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M41.7668 20.9995C41.7668 26.2499 39.793 31.0393 36.5468 34.6661C32.7932 38.8601 27.3382 41.4995 21.2668 41.4995C15.1954 41.4995 9.74041 38.8601 5.98672 34.6661C2.74062 31.0393 0.766785 26.2499 0.766785 20.9995C0.766785 9.67761 9.94495 0.499451 21.2668 0.499451C32.5886 0.499451 41.7668 9.67761 41.7668 20.9995ZM21.2667 5.23022C17.4928 5.23022 14.4334 8.28961 14.4334 12.0636C14.4334 15.8375 17.4928 18.8969 21.2667 18.8969C25.0406 18.8969 28.1 15.8375 28.1 12.0636C28.1 8.28961 25.0406 5.23022 21.2667 5.23022ZM11.4859 24.8284C10.7687 25.6237 10.2011 26.6143 9.0657 28.5954L8.8887 28.9043L8.88869 28.9043C8.6587 29.3056 8.5437 29.5063 8.49416 29.7279C8.42285 30.0469 8.47037 30.4342 8.6167 30.7265C8.71834 30.9296 8.86199 31.0793 9.14931 31.3789C12.3531 34.719 16.3725 36.7687 21.2667 36.7687C26.1609 36.7687 30.1803 34.719 33.3841 31.3789C33.6714 31.0793 33.8151 30.9296 33.9167 30.7265C34.063 30.4342 34.1105 30.0469 34.0392 29.7279C33.9897 29.5063 33.8747 29.3056 33.6447 28.9044L33.6447 28.9043L33.4677 28.5954C32.3323 26.6143 31.7647 25.6237 31.0475 24.8284C29.644 23.2719 27.7868 22.1957 25.7384 21.7519C24.6918 21.5251 23.5501 21.5251 21.2667 21.5251C18.9833 21.5251 17.8416 21.5251 16.795 21.7519C14.7466 22.1957 12.8894 23.2719 11.4859 24.8284Z"
-                  fill="#292556"
-                />
-              </svg>
+              <button onClick={() => navigate("/profile")}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="22"
+                  height="22"
+                  viewBox="0 0 42 42"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M41.7668 20.9995C41.7668 26.2499 39.793 31.0393 36.5468 34.6661C32.7932 38.8601 27.3382 41.4995 21.2668 41.4995C15.1954 41.4995 9.74041 38.8601 5.98672 34.6661C2.74062 31.0393 0.766785 26.2499 0.766785 20.9995C0.766785 9.67761 9.94495 0.499451 21.2668 0.499451C32.5886 0.499451 41.7668 9.67761 41.7668 20.9995ZM21.2667 5.23022C17.4928 5.23022 14.4334 8.28961 14.4334 12.0636C14.4334 15.8375 17.4928 18.8969 21.2667 18.8969C25.0406 18.8969 28.1 15.8375 28.1 12.0636C28.1 8.28961 25.0406 5.23022 21.2667 5.23022ZM11.4859 24.8284C10.7687 25.6237 10.2011 26.6143 9.0657 28.5954L8.8887 28.9043L8.88869 28.9043C8.6587 29.3056 8.5437 29.5063 8.49416 29.7279C8.42285 30.0469 8.47037 30.4342 8.6167 30.7265C8.71834 30.9296 8.86199 31.0793 9.14931 31.3789C12.3531 34.719 16.3725 36.7687 21.2667 36.7687C26.1609 36.7687 30.1803 34.719 33.3841 31.3789C33.6714 31.0793 33.8151 30.9296 33.9167 30.7265C34.063 30.4342 34.1105 30.0469 34.0392 29.7279C33.9897 29.5063 33.8747 29.3056 33.6447 28.9044L33.6447 28.9043L33.4677 28.5954C32.3323 26.6143 31.7647 25.6237 31.0475 24.8284C29.644 23.2719 27.7868 22.1957 25.7384 21.7519C24.6918 21.5251 23.5501 21.5251 21.2667 21.5251C18.9833 21.5251 17.8416 21.5251 16.795 21.7519C14.7466 22.1957 12.8894 23.2719 11.4859 24.8284Z"
+                    fill="#292556"
+                  />
+                </svg>
+              </button>
             </div>
             <div class="bg-[#F8F5F5] mt-24 mx-4 py-5 px-6">
               <p class="font-[300]">Messages</p>
@@ -617,6 +571,9 @@ export default function DesignersTab() {
               </div>
             </div>
           </div>
+        </div>
+        <div className="lg:hidden">
+          <BottomBar />
         </div>
       </div>
     </div>

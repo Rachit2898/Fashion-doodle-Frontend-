@@ -2,6 +2,8 @@ import React from "react";
 import Search from "../images/search.png";
 import SideBar from "../components/leftSideBar";
 import RightSideBar from "../components/rightSideBar";
+import BottomBar from "../components/bottomBar";
+
 export default function DesignersTab() {
   return (
     <div class="bg-gradient-to-r lg:h-full md:h-screen from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[15%] p-5">
@@ -24,8 +26,8 @@ export default function DesignersTab() {
           </div>
         </div>
         <div class=" flex items-center justify-center">
-          <div class="flex w-1/4" />
-          <div class="w-1/2 flex justify-center">
+          <div class="lg:flex w-1/4 hidden sm:block" />
+          <div class="w-1/2 lg:flex justify-center hidden sm:block">
             <div class=" sm:w-[100%] px-2 lg:px-0">
               <div class="mx-8">
                 <div class="flex items-center relative   mt-2">
@@ -118,21 +120,21 @@ export default function DesignersTab() {
           </div>
         </div>
 
-        <div class="flex mt-10   ">
+        <div class="flex lg:mt-10   ">
           <div class="lg:w-1/4  hidden sm:block lg:flex lg:flex-col  z-50">
             <SideBar />
           </div>
-          <div class="w-full hidden sm:block lg:flex lg:flex-row z-50">
-            <div class="flex w-1/3 flex-col gap-10 h-[500px] overflow-x-auto bg-[#F5F5F5] p-5">
+          <div class="w-full  lg:flex lg:flex-row z-50">
+            <div class="flex lg:w-1/3 flex-col gap-10 lg:h-full sm:h-screen overflow-x-auto bg-[#F5F5F5] p-5">
               <div class="flex gap-1 items-center  ">
                 <img
                   src={require("../images/Ellipse.jpg")}
                   alt="Search Icon"
                   className="h-8 rounded-full p-[3px]"
                 />
-                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg">
-                  <p class="font-[400] text-sm  ">Jerry Mathews</p>
-                  <p class="font-[100] text-xs  ">2 new messeges</p>
+                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg py-4 lg:py-0">
+                  <p class="font-[400] text-lg lg:text-sm   ">Jerry Mathews</p>
+                  <p class="font-[100] text-sm lg:text-xs   ">2 new messeges</p>
                 </div>
               </div>
 
@@ -142,9 +144,9 @@ export default function DesignersTab() {
                   alt="Search Icon"
                   className="h-8 rounded-full p-[3px]"
                 />
-                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg">
-                  <p class="font-[400] text-sm  ">Jerry Mathews</p>
-                  <p class="font-[100] text-xs  ">2 new messeges</p>
+                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg py-4 lg:py-0">
+                  <p class="font-[400] text-lg lg:text-sm   ">Jerry Mathews</p>
+                  <p class="font-[100] text-sm lg:text-xs   ">2 new messeges</p>
                 </div>
               </div>
               <div class="flex gap-1 items-center  ">
@@ -153,9 +155,9 @@ export default function DesignersTab() {
                   alt="Search Icon"
                   className="h-8 rounded-full p-[3px]"
                 />
-                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg">
-                  <p class="font-[400] text-sm  ">Jerry Mathews</p>
-                  <p class="font-[100] text-xs  ">2 new messeges</p>
+                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg py-4 lg:py-0">
+                  <p class="font-[400] text-lg lg:text-sm   ">Jerry Mathews</p>
+                  <p class="font-[100] text-sm lg:text-xs   ">2 new messeges</p>
                 </div>
               </div>
               <div class="flex gap-1 items-center  ">
@@ -164,9 +166,9 @@ export default function DesignersTab() {
                   alt="Search Icon"
                   className="h-8 rounded-full p-[3px]"
                 />
-                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg">
-                  <p class="font-[400] text-sm  ">Jerry Mathews</p>
-                  <p class="font-[100] text-xs  ">2 new messeges</p>
+                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg py-4 lg:py-0">
+                  <p class="font-[400] text-lg lg:text-sm   ">Jerry Mathews</p>
+                  <p class="font-[100] text-sm lg:text-xs   ">2 new messeges</p>
                 </div>
               </div>
               <div class="flex gap-1 items-center  ">
@@ -175,9 +177,9 @@ export default function DesignersTab() {
                   alt="Search Icon"
                   className="h-8 rounded-full p-[3px]"
                 />
-                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg">
-                  <p class="font-[400] text-sm  ">Jerry Mathews</p>
-                  <p class="font-[100] text-xs  ">2 new messeges</p>
+                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg py-4 lg:py-0">
+                  <p class="font-[400] text-lg lg:text-sm   ">Jerry Mathews</p>
+                  <p class="font-[100] text-sm lg:text-xs   ">2 new messeges</p>
                 </div>
               </div>
               <div class="flex gap-1 items-center  ">
@@ -186,9 +188,9 @@ export default function DesignersTab() {
                   alt="Search Icon"
                   className="h-8 rounded-full p-[3px]"
                 />
-                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg">
-                  <p class="font-[400] text-sm  ">Jerry Mathews</p>
-                  <p class="font-[100] text-xs  ">2 new messeges</p>
+                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg py-4 lg:py-0">
+                  <p class="font-[400] text-lg lg:text-sm   ">Jerry Mathews</p>
+                  <p class="font-[100] text-sm lg:text-xs   ">2 new messeges</p>
                 </div>
               </div>
               <div class="flex gap-1 items-center  ">
@@ -197,9 +199,9 @@ export default function DesignersTab() {
                   alt="Search Icon"
                   className="h-8 rounded-full p-[3px]"
                 />
-                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg">
-                  <p class="font-[400] text-sm  ">Jerry Mathews</p>
-                  <p class="font-[100] text-xs  ">2 new messeges</p>
+                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg py-4 lg:py-0">
+                  <p class="font-[400] text-lg lg:text-sm   ">Jerry Mathews</p>
+                  <p class="font-[100] text-sm lg:text-xs   ">2 new messeges</p>
                 </div>
               </div>
               <div class="flex gap-1 items-center  ">
@@ -208,13 +210,13 @@ export default function DesignersTab() {
                   alt="Search Icon"
                   className="h-8 rounded-full p-[3px]"
                 />
-                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg">
-                  <p class="font-[400] text-sm  ">Jerry Mathews</p>
-                  <p class="font-[100] text-xs  ">2 new messeges</p>
+                <div class=" bg-[#D9D9D9] w-full px-2 rounded-lg py-4 lg:py-0">
+                  <p class="font-[400] text-lg lg:text-sm   ">Jerry Mathews</p>
+                  <p class="font-[100] text-sm lg:text-xs   ">2 new messeges</p>
                 </div>
               </div>
             </div>
-            <div class="flex w-full">
+            <div class="lg:flex w-full hidden sm:block">
               <div class="flex flex-col  justify-between w-full mx-5 ">
                 <div class="flex flex-row  justify-between w-full h-16 items-center border-b-[#00000078] border-b ">
                   <div class="flex gap-1   ">
@@ -282,6 +284,9 @@ export default function DesignersTab() {
               </div>
             </div>
           </div>
+        </div>
+        <div className="lg:hidden">
+          <BottomBar />
         </div>
       </div>
     </div>

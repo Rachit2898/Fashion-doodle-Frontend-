@@ -1,8 +1,9 @@
 import React from "react";
 import Search from "../images/search.png";
+import LeftSideBar from "../components/leftSideBar";
 export default function DesignersTab() {
   return (
-    <div class="bg-gradient-to-r lg:h-full md:h-screen from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[15%] p-5">
+    <div class="bg-gradient-to-r   lg:h-full h-screen from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[15%] p-5 ">
       <div class="rounded-lg bg-white pb-[3%]">
         <div class="flex border-b-[2px] h-16 border-b-black rounded-tl-md rounded-tr-md">
           <div class="flex w-96 justify-between px-10">
@@ -24,81 +25,10 @@ export default function DesignersTab() {
 
         <div class="flex   ">
           <div class="lg:w-1/4 mt-24 hidden sm:block lg:flex lg:flex-col  z-50">
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/feed.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Feed</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/explore.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Explore</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/multi-user.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Trending</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/service-bell.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Notifications</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/envelope.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Direct</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/wishlist.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">My Wishlist</p>
-              </div>
-            </div>
+            <LeftSideBar />
           </div>
-          <div class="lg:w-1/2 sm:w-[100%] px-2 lg:px-0">
-            <div class="mx-8">
+          <div class="lg:w-1/2 sm:w-[100%] px-2 lg:px-0  w-full">
+            <div class="lg:mx-8">
               <div class="flex items-center relative   mt-2">
                 <div class="w-[100%]">
                   <img
@@ -114,8 +44,8 @@ export default function DesignersTab() {
               </div>
             </div>
 
-            <div class="bg-[#F8F5F5] flex flex-col gap-14 p-10  mt-14">
-              <div class="flex  bg-[#D9D9D9]  ">
+            <div class="bg-[#F8F5F5] w-full flex flex-col lg:gap-14 gap-5 lg:p-10 py-5 px-2  lg:mt-14 mt-2">
+              <div class="flex  bg-[#D9D9D9] p-2   ">
                 <div class="flex items-center  w-full  ">
                   <img
                     src={require("../images/Ellipse.jpg")}
@@ -129,7 +59,7 @@ export default function DesignersTab() {
                   </div>
                 </div>
               </div>
-              <div class="flex  bg-[#D9D9D9]  ">
+              <div class="flex  bg-[#D9D9D9] p-2   ">
                 <div class="flex items-center  w-full  ">
                   <img
                     src={require("../images/Ellipse.jpg")}
@@ -138,12 +68,12 @@ export default function DesignersTab() {
                   />
                   <div class="flex justify-center items-center w-full">
                     <p class="text-[15px]  font-[300] ">
-                      Jerry started following
+                      Mike liked your photo
                     </p>
                   </div>
                 </div>
               </div>
-              <div class="flex  bg-[#D9D9D9]  ">
+              <div class="flex  bg-[#D9D9D9] p-2   ">
                 <div class="flex items-center  w-full  ">
                   <img
                     src={require("../images/Ellipse.jpg")}
@@ -152,13 +82,13 @@ export default function DesignersTab() {
                   />
                   <div class="flex justify-center items-center w-full">
                     <p class="text-[15px]  font-[300] ">
-                      Jerry added you as a connection
+                      Mike liked your photo
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div class="flex  bg-[#D9D9D9]  ">
+              <div class="flex  bg-[#D9D9D9] p-2   ">
                 <div class="flex items-center  w-full  ">
                   <img
                     src={require("../images/Ellipse.jpg")}
@@ -166,11 +96,13 @@ export default function DesignersTab() {
                     className="h-8 rounded-full p-[3px]"
                   />
                   <div class="flex justify-center items-center w-full">
-                    <p class="text-[15px]  font-[300] ">Olive added a story</p>
+                    <p class="text-[15px]  font-[300] ">
+                      Mike liked your photo
+                    </p>
                   </div>
                 </div>
               </div>
-              <div class="flex  bg-[#D9D9D9]  ">
+              <div class="flex  bg-[#D9D9D9] p-2   ">
                 <div class="flex items-center  w-full  ">
                   <img
                     src={require("../images/Ellipse.jpg")}

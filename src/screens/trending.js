@@ -1,4 +1,5 @@
 import React from "react";
+import LeftSidebar from "../components/leftSideBar";
 import Search from "../images/search.png";
 export default function DesignersTab() {
   return (
@@ -24,78 +25,7 @@ export default function DesignersTab() {
 
         <div class="flex   ">
           <div class="lg:w-1/4 mt-24 hidden sm:block lg:flex lg:flex-col  z-50">
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/feed.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Feed</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/explore.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Explore</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/multi-user.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Trending</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/service-bell.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Notifications</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/envelope.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">Direct</p>
-              </div>
-            </div>
-            <div class="flex items-center px-6 ">
-              <div class="w-16 py-8">
-                <img
-                  src={require("../images/wishlist.png")}
-                  alt="Search Icon"
-                  class="w-6"
-                />
-              </div>
-              <div class="w-24">
-                <p class="text-[15px]">My Wishlist</p>
-              </div>
-            </div>
+            <LeftSidebar />
           </div>
           <div class="lg:w-1/2 sm:w-[100%] px-2 lg:px-0">
             <div class="mx-8">

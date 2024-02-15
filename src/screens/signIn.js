@@ -1,11 +1,19 @@
 import React, { useState } from "react";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import { getAllRole, signUp } from "../redux/features/auth";
 function SignIn() {
+  const dispatch = useDispatch();
+  const { allRoles } = useSelector((state) => ({
+    ...state.auth,
+  }));
+
+  console.log(allRoles);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState({
     model: false,
     user: false,
-    admin: false,
+    designer: false,
   });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,9 +29,20 @@ function SignIn() {
   };
 
   const handleCheckboxChange = (name) => {
+    let id;
+
+    if (name === "user") {
+      id = 3;
+    } else if (name === "model") {
+      id = 2;
+    } else if (name === "designer") {
+      id = 1;
+    }
+
     setUserType((prevUserType) => ({
       ...prevUserType,
       [name]: !prevUserType[name],
+      id: id,
     }));
   };
 
@@ -48,10 +67,20 @@ function SignIn() {
     setUserType({
       model: false,
       user: false,
-      admin: false,
+      designer: false,
     });
 
     console.log("Signup successful!");
+
+    const body = {
+      userName: email.split("@")[0],
+      password: password,
+      fullName: email.split("@")[0],
+      email: email,
+      roleId: userType.id,
+    };
+
+    dispatch(signUp(body));
   };
 
   const handleTogglePasswordVisibility = () => {
@@ -149,12 +178,12 @@ function SignIn() {
                 <label class="inline-flex items-center">
                   <input
                     type="checkbox"
-                    checked={userType.admin}
-                    onChange={() => handleCheckboxChange("admin")}
-                    name="admin"
+                    checked={userType.designer}
+                    onChange={() => handleCheckboxChange("designer")}
+                    name="designer"
                     class="form-checkbox"
                   />
-                  <span class="ml-2">Admin</span>
+                  <span class="ml-2">Designer</span>
                 </label>
               </div>
               {error && <p className="text-red-500 font-[300]">{error}</p>}

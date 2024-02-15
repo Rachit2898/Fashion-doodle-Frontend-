@@ -1,7 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { getAllRole, signIn } from "../redux/features/auth";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 function SignIn() {
+  const { signInData, getUserByTokenData } = useSelector((state) => ({
+    ...state.auth,
+  }));
+
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -24,11 +31,18 @@ function SignIn() {
       return;
     }
 
-    if (email === "admin@admin.mail" && password === "Admin123") {
-      navigate("/designers");
-    } else {
-      setError("Invalid email or password");
-    }
+    const body = {
+      userName: email.split("@")[0],
+      password: password,
+    };
+
+    dispatch(signIn(body));
+
+    // if (email === "admin@admin.mail" && password === "Admin123") {
+    //   navigate("/designers");
+    // } else {
+    //   setError("Invalid email or password");
+    // }
   };
   const handleTogglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
