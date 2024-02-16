@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Modal from "../components/modal";
 import LeftSideBar from "../components/leftSideBar";
 import Search from "../images/search.png";
 import data from "@emoji-mart/data";
@@ -10,6 +11,8 @@ import {
   getAllPosts,
   likePost,
   incrementLikes,
+  addCommentToPost,
+  getCommentsById,
 } from "../redux/features/post";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import BottomBar from "../components/bottomBar";
@@ -17,18 +20,25 @@ import { Emoji } from "emoji-mart";
 
 export default function DesignersTab() {
   const navigate = useNavigate();
-
+  const [currentPostId, setCurrentPostId] = useState(null);
+  const [showComments, setShowComments] = useState("");
   const [showEmojis, setShowEmojis] = useState(false);
   const [comment, setComment] = useState("");
-  const { postByIdData, allPostsData } = useSelector((state) => ({
-    ...state.post,
-  }));
+  const [id, setId] = useState(-1);
+  const [show, setShow] = useState(false);
+  const [commentId, setCommentId] = useState(-1);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+  const { postByIdData, allPostsData, getCommentsByIdData } = useSelector(
+    (state) => ({
+      ...state.post,
+    })
+  );
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getAllPosts());
   }, []);
-
-  console.log(postByIdData);
 
   function getTimeAgo(timestamp) {
     const now = new Date();
@@ -53,7 +63,6 @@ export default function DesignersTab() {
   // Example usage:
   const timestamp = "2024-02-13T11:01:57.000Z";
   const formattedTimeAgo = getTimeAgo(timestamp);
-  console.log(formattedTimeAgo);
 
   const likePostHandler = (id) => {
     dispatch(likePost({ userId: 6, postId: id }));
@@ -61,15 +70,43 @@ export default function DesignersTab() {
   };
 
   const emojisHandler = (emoji) => {
-    console.log(emoji.native);
     setComment((prevComment) => prevComment + emoji.native);
   };
 
-  const handleCommentType = (event) => {
-    setComment(event.target.value);
+  const handleCommentType = (e, postId) => {
+    setCurrentPostId(postId);
+    setComment(e.target.value);
   };
 
-  console.log(comment);
+  const handlePostComment = (postId) => {
+    dispatch(
+      addCommentToPost({
+        content: comment,
+        postId: postId,
+        userId: 1,
+      })
+    );
+    setComment("");
+  };
+  const commentsShowHandler = (id) => {
+    dispatch(getCommentsById(id));
+    setId(id);
+    setShowComments((prev) => !prev);
+  };
+
+  console.log(getCommentsByIdData.Table);
+
+  const openDeleteHandler = () => {};
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <div class="bg-gradient-to-r lg:h-full md:h-screen from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[15%] p-5">
@@ -91,7 +128,9 @@ export default function DesignersTab() {
             </label>
           </div>
         </div>
-
+        <div>
+          <Modal isOpen={isModalOpen} onClose={closeModal} id={commentId} />
+        </div>
         <div class="flex   ">
           <div class="lg:w-1/4 mt-24 hidden sm:block lg:flex lg:flex-col  z-50">
             <LeftSideBar />
@@ -162,7 +201,7 @@ export default function DesignersTab() {
             {allPostsData?.Posts?.map((item) => {
               return (
                 <div class="bg-[#F8F5F5] py-3  mt-5">
-                  {showEmojis ? (
+                  {showEmojis === item.id && (
                     <div class="flex absolute z-50">
                       <Picker
                         data={data}
@@ -171,7 +210,7 @@ export default function DesignersTab() {
                         }}
                       />
                     </div>
-                  ) : null}
+                  )}
                   <div class="flex justify-between px-8 ">
                     <div class="flex ">
                       <img
@@ -230,7 +269,7 @@ export default function DesignersTab() {
                       </svg>
                       <p>{item.likesCount}</p>
                     </button>
-                    <div>
+                    <button onClick={() => commentsShowHandler(item.id)}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="25"
@@ -254,7 +293,7 @@ export default function DesignersTab() {
                         />
                       </svg>
                       <p>{item.commentsCount}</p>
-                    </div>
+                    </button>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="25"
@@ -281,9 +320,12 @@ export default function DesignersTab() {
                       <p>Liked by dj dynamo and 500 others</p>
                     </div>
                   </div>
-                  <div className="flex m-5  flex-row  ">
-                    <div className=" bg-white flex w-full flex-row  justify-between items-center rounded-lg">
-                      <button onClick={() => setShowEmojis(true)} class="ml-2">
+                  <div className="flex  bg-white m-5  flex-col  ">
+                    <div className=" flex w-full flex-row  justify-between items-center rounded-t-lg border-b">
+                      <button
+                        onClick={() => setShowEmojis(item.id)}
+                        class="ml-2"
+                      >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           className="h-5 w-5"
@@ -301,16 +343,19 @@ export default function DesignersTab() {
                       </button>
                       <textarea
                         multiple
-                        value={comment}
-                        onChange={handleCommentType}
+                        value={item.id === currentPostId ? comment : ""}
+                        onChange={(e) => handleCommentType(e, item.id)}
                         onClick={() => {
-                          setShowEmojis(false);
+                          setShowEmojis(null);
                         }}
                         type="text"
                         placeholder="Add a comment..."
                         className="border  h-10 flex items-center justify-center resize-none border-gray-300  p-2 w-5/6 border-none focus:outline-none focus:border-none rounded-l-md"
                       />
-                      <button className=" text-white p-2 rounded-r-md">
+                      <button
+                        onClick={() => handlePostComment(item.id)}
+                        className=" text-white p-2 rounded-r-md"
+                      >
                         <img
                           src={require("../images/post.png")}
                           alt="Search Icon"
@@ -318,6 +363,52 @@ export default function DesignersTab() {
                         />
                       </button>
                     </div>
+                    {showComments && id === item.id && (
+                      <>
+                        {getCommentsByIdData?.Table?.map((item) => {
+                          return (
+                            <div
+                              className="flex px-4 my-2"
+                              key={item.commentId}
+                            >
+                              <div className="mr-4">
+                                <img
+                                  src={require("../images/Ellipse.jpg")}
+                                  className="w-10 h-10 rounded-full"
+                                  alt="User Avatar"
+                                />
+                              </div>
+                              <div className=" bg-[#f2f2f2] p-4 w-full rounded">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="font-semibold mr-2">
+                                    Rachit
+                                  </span>
+                                  <div class="flex flex-col">
+                                    <span className="text-gray-500 text-sm">
+                                      {getTimeAgo(item.created_at)}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div class="flex">
+                                  <div class="flex w-[95%]">
+                                    <p className="text-gray-700">
+                                      {item.content}
+                                    </p>
+                                  </div>
+                                  <button onClick={openModal}>
+                                    <img
+                                      src={require("../images/delete.png")}
+                                      className="w-5 h-5 rounded-full"
+                                      alt="User Avatar"
+                                    />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </>
+                    )}
                   </div>
                 </div>
               );

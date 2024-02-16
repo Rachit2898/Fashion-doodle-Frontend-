@@ -7,21 +7,29 @@ function NewDesignersTab() {
     ...state.auth,
   }));
   return (
-    <div class="lg:bg-gradient-to-r lg:h-full h-screen sm:bg-white from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[15%] lg:p-5">
+    <div class="lg:bg-gradient-to-r lg:h-full h-screen md:bg-white from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[15%] lg:p-5">
       <div class="bg-gradient-to-t lg:rounded-lg to-[#A0D5CB]  bg-white from-[#6EB5D300] lg:pb-[3%] relative">
         <div class="flex flex-col ">
           <div class="relative">
             <div>
               <img
-                src={getUserByTokenData.backGroundPic}
+                src={
+                  getUserByTokenData.backGroundPic
+                    ? getUserByTokenData.backGroundPic
+                    : "https://img.freepik.com/free-photo/shopping-concept-close-up-portrait-young-beautiful-attractive-redhair-girl-smiling-looking-camera_1258-116839.jpg?size=626&ext=jpg&ga=GA1.1.1259320201.1707409598&semt=ais"
+                }
                 alt="Search Icon"
-                class="lg:p-14 max-h-[600px] w-full"
+                class="lg:p-14 lg:max-h-[600px] lg:min-h-[600px] w-full"
               />
             </div>
             <div class="absolute lg:left-24 left-5 lg:transform lg:-translate-y-28 -translate-y-14">
               <div class="flex lg:flex-row flex-col justify-end items-center">
                 <img
-                  src={getUserByTokenData.profilePicture}
+                  src={
+                    getUserByTokenData.profilePicture
+                      ? getUserByTokenData.profilePicture
+                      : "https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?size=626&ext=jpg&ga=GA1.1.1259320201.1707409598&semt=ais"
+                  }
                   class="rounded-full h-40"
                 />
                 <div class="w-full flex flex-col lg:items-center">
@@ -29,14 +37,14 @@ function NewDesignersTab() {
                     <p class="text-xl lg:text-2xl font-light">
                       {getUserByTokenData.fullName}
                     </p>
-                    <p class="text-sm font-light hidden sm:block">
+                    <p class="text-sm font-light hidden  md:block">
                       723 Followers
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="lg:flex hidden sm:block items-center justify-end mr-20 -mt-10 gap-5">
+            <div class="lg:flex hidden md:block  items-center justify-end mr-20 -mt-10 gap-5">
               <div class="bg-[#4600DB82] rounded-full w-24 flex justify-center">
                 <p class="text-white text-[15px] font-[300] px-5 py-1">
                   Follow
@@ -56,7 +64,7 @@ function NewDesignersTab() {
           </div>
         </div>
 
-        <div class="mt-14  justify-center gap-56 lg:flex hidden sm:block">
+        <div class="mt-14  justify-center gap-56 lg:flex hidden  md:block">
           <div>
             <p>Followers</p>
           </div>
@@ -64,7 +72,7 @@ function NewDesignersTab() {
             <p>Following</p>
           </div>
         </div>
-        <div class="mt-10  justify-center gap-16 lg:flex hidden sm:block">
+        <div class="mt-10  justify-center gap-16 lg:flex hidden  md:block">
           <img
             src={require("../images/shirt1.png")}
             alt="Search Icon"
