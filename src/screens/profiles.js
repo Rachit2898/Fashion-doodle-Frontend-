@@ -1,11 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { Provider, useDispatch, useSelector } from "react-redux";
+import Modal from "../components/followers";
 
 function NewDesignersTab() {
-  const { signInData, getUserByTokenData } = useSelector((state) => ({
-    ...state.auth,
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { getUserByIdData, getFollowersData, getFollowingData } = useSelector(
+    (state) => ({
+      ...state.user,
+    })
+  );
+  const { postsByUserIdData } = useSelector((state) => ({
+    ...state.post,
   }));
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+  const openModal = (id) => {
+    setIsModalOpen(true);
+  };
+
+  const handleModalClick = () => {
+    closeModal();
+  };
+
+  console.log(postsByUserIdData);
+
   return (
     <div class="lg:bg-gradient-to-r lg:h-full h-screen md:bg-white from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[15%] lg:p-5">
       <div class="bg-gradient-to-t lg:rounded-lg to-[#A0D5CB]  bg-white from-[#6EB5D300] lg:pb-[3%] relative">
@@ -14,8 +34,8 @@ function NewDesignersTab() {
             <div>
               <img
                 src={
-                  getUserByTokenData?.backGroundPic
-                    ? getUserByTokenData?.backGroundPic
+                  !!getUserByIdData.Table?.backGroundPic
+                    ? getUserByIdData.Table?.backGroundPic
                     : "https://img.freepik.com/free-photo/shopping-concept-close-up-portrait-young-beautiful-attractive-redhair-girl-smiling-looking-camera_1258-116839.jpg?size=626&ext=jpg&ga=GA1.1.1259320201.1707409598&semt=ais"
                 }
                 alt="Search Icon"
@@ -26,8 +46,8 @@ function NewDesignersTab() {
               <div class="flex lg:flex-row flex-col justify-end items-center">
                 <img
                   src={
-                    getUserByTokenData.profilePicture
-                      ? getUserByTokenData.profilePicture
+                    !!getUserByIdData.Table?.profilePicture
+                      ? getUserByIdData.Table?.profilePicture
                       : "https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?size=626&ext=jpg&ga=GA1.1.1259320201.1707409598&semt=ais"
                   }
                   class="rounded-full lg:w-72 h-40"
@@ -35,7 +55,7 @@ function NewDesignersTab() {
                 <div class="w-full flex flex-col lg:items-center">
                   <div class="ml-2">
                     <p class="text-xl lg:text-2xl font-light">
-                      {getUserByTokenData.fullName}
+                      {getUserByIdData?.Table?.fullName}
                     </p>
                     <p class="text-sm font-light hidden  md:block">
                       723 Followers
@@ -64,30 +84,37 @@ function NewDesignersTab() {
           </div>
         </div>
 
-        <div class="mt-14  justify-center gap-56 lg:flex hidden  md:block">
-          <div>
-            <p>Followers</p>
-          </div>
-          <div>
-            <p>Following</p>
-          </div>
+        <div class="z-50">
+          <Modal
+            onClick={handleModalClick}
+            isOpen={isModalOpen}
+            onClose={closeModal}
+            message={getFollowingData}
+          />
         </div>
-        <div class="mt-10  justify-center gap-16 lg:flex hidden  md:block">
-          <img
-            src={require("../images/shirt1.png")}
-            alt="Search Icon"
-            class="w-72 h-32"
-          />
-          <img
-            src={require("../images/shirt2.png")}
-            alt="Search Icon"
-            class="w-72 h-32"
-          />
-          <img
-            src={require("../images/shirt3.png")}
-            alt="Search Icon"
-            class="w-72 h-32"
-          />
+
+        <div class="mt-14  justify-center gap-56 lg:flex hidden  md:block">
+          <div class="flex flex-col justify-center items-center">
+            <p>Followers</p>
+            <p>
+              {getFollowersData?.followers?.length
+                ? getFollowersData?.followers?.length
+                : 0}
+            </p>
+          </div>
+          <button
+            onClick={openModal}
+            class="flex flex-col justify-center items-center"
+          >
+            <p>Following</p>
+            <p>{getFollowingData?.following?.length}</p>
+          </button>
+        </div>
+
+        <div class="mt-10 justify-center gap-16 lg:flex hidden md:flex flex-wrap">
+          {postsByUserIdData?.Table?.map((item) => (
+            <img src={item?.imageUrls} alt="Search Icon" class="max-h-96" />
+          ))}
         </div>
 
         <div className=" lg:hidden flex  absolute mt-36 flex-row justify-around w-screen">

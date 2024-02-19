@@ -218,7 +218,7 @@ function SignIn() {
           </div>
           <div class="flex  justify-end mt-5 lg:mt-0 ">
             <img
-              src="https://s3-alpha-sig.figma.com/img/a4cd/d459/3934348bd0b6c7e61309a2d8798e6527?Expires=1708300800&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=fhm2kz8j-Ilc2sjIHqP~xCzRZ-i2ZVxM7jwzXYLBirUTSCc1YMxyIl3OfnPq7OC82qBC7PNvUVvqPW0qhsRNDbaDNwBOSX2ZUP-gyVA3SE4dMjGje4i-c5qqKn-caz0PkUUhlNz7W82kS7n6gbjhCyXuYnsGMm37lIaV7QovKBvWOL~cpjvQXp2pRINKNnK~on0k8eXYxMsK4bG-HfQQx1~G3krvOb-XqyD0TlTA-DpdpZJmzTYIIu8OsVhJGI~fZQP4wYvqAWlcyTPaWaK~YUL93X2O2dK5kXoWp0nI429t-BlU8Rq9t-a0jitnba~Rn5cB9c4m0svtzOa7WyNbhg__"
+              src="https://firebasestorage.googleapis.com/v0/b/droodle-3024f.appspot.com/o/files%2FRectangle%20700.png?alt=media&token=99820c27-fa5b-436c-891f-2392f87e2ab0"
               class="lg:h-[83.7vh]  rounded-lg"
             />
           </div>

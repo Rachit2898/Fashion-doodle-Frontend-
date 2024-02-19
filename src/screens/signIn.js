@@ -289,7 +289,7 @@ function SignIn() {
           </div>
           <div class="flex  justify-end mt-5 lg:mt-0 ">
             <img
-              src="https://s3-alpha-sig.figma.com/img/34f3/e010/c5df3f72930cd31c673789672c9d5d04?Expires=1708300800&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=ki-dvLP7rpZjigeGk-Nc6o7AoGkcxbnikOeLBFoMqu~pOlKSqPpqG1Lf9gwvecdYYTlegJteyywylej~hm4XVq2KgBTfJIZxxpDaIlhvmvEJxEAoXyhuPFpKTsGcXGhB7eo6Uhma~q9kE3FgA7mq~ICB4hkj638A~gdSJRogwSyCgsZQGc3VFjSTU1gk2CD74C3ibW9iGkLVAn0SOc2YBMXNpGwN-lN59GvxipWNM4W51NVQu6bHTEwbLB0vL3XYrwoaK6JtlR3Hg8JerS51iFLDiCyGrFygIPgbiMIkVwjGvUf4IbBnA2EiXtwdeNniLFkdtZGosKkIDC5tMVS2rg__"
+              src="https://firebasestorage.googleapis.com/v0/b/droodle-3024f.appspot.com/o/files%2FRectangle%20699.png?alt=media&token=8731fa77-f7aa-4bb4-9c76-4f1e3c47df15"
               alt="Your Image"
               class="lg:h-[83.7vh]  rounded-lg"
             />

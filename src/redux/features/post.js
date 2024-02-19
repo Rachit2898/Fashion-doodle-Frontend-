@@ -89,10 +89,10 @@ export const getCommentsById = createAsyncThunk(
     return myData;
   }
 );
-export const deleteComment = createAsyncThunk(
-  "auth/deleteComment",
+export const getPostsByUserId = createAsyncThunk(
+  "auth/getPostsByUserId",
   async (body) => {
-    const url = `http://localhost:3000/comments/deleteComment/${body}}`;
+    const url = `http://localhost:3000/posts/postsByUser/${body}`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -106,6 +106,55 @@ export const deleteComment = createAsyncThunk(
     return myData;
   }
 );
+export const deleteComment = createAsyncThunk(
+  "auth/deleteComment",
+  async (id) => {
+    const url = `http://localhost:3000/comments/deleteComment/${decodeURIComponent(
+      id
+    )}`;
+
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "access-control-allow-origin": "*",
+        "Content-Type": "application/json",
+      },
+    });
+    const myData = await response.json();
+
+    return myData;
+  }
+);
+
+export const createPost = createAsyncThunk("auth/createPost", async (body) => {
+  const url = `http://localhost:3000/posts/createPost`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "access-control-allow-origin": "*",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  const myData = await response.json();
+
+  return myData;
+});
+export const deletePost = createAsyncThunk("auth/deletePost", async (id) => {
+  const url = `http://localhost:3000/posts/deletePost/${id}`;
+
+  const response = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      "access-control-allow-origin": "*",
+      "Content-Type": "application/json",
+    },
+  });
+  const myData = await response.json();
+
+  return myData;
+});
 
 const initialState = {
   postByIdData: {},
@@ -113,6 +162,9 @@ const initialState = {
   likePostData: {},
   addCommentToPostData: {},
   getCommentsByIdData: {},
+  createPostData: {},
+  deletePostData: {},
+  postsByUserIdData: {},
 };
 
 const postSlice = createSlice({
@@ -170,7 +222,22 @@ const postSlice = createSlice({
             (comment) => comment.id !== deletedCommentId
           );
       })
-      .addCase(deleteComment.rejected, (state, action) => {});
+      .addCase(deleteComment.rejected, (state, action) => {})
+      .addCase(createPost.pending, (state) => {})
+      .addCase(createPost.fulfilled, (state, action) => {
+        state.createPostData = action.payload;
+      })
+      .addCase(createPost.rejected, (state, action) => {})
+      .addCase(deletePost.pending, (state) => {})
+      .addCase(deletePost.fulfilled, (state, action) => {
+        state.deletePostData = action.payload;
+      })
+      .addCase(deletePost.rejected, (state, action) => {})
+      .addCase(getPostsByUserId.pending, (state) => {})
+      .addCase(getPostsByUserId.fulfilled, (state, action) => {
+        state.postsByUserIdData = action.payload;
+      })
+      .addCase(getPostsByUserId.rejected, (state, action) => {});
   },
 });
 

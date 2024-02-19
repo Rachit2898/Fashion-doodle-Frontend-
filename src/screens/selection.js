@@ -1,10 +1,61 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import Search from "../images/search.png";
+import Modal from "../components/post";
+import { storage } from "../firebaseFile";
+import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 
 function Selection() {
+  const [fileInputVisible, setFileInputVisible] = useState(false);
+  const [imgUrl, setImgUrl] = useState(null);
+  const [progresspercent, setProgresspercent] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleButtonClick = () => {
+    setFileInputVisible(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+  const fileInputRef = useRef();
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      const storageRef = ref(storage, `files/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          setProgresspercent(progress);
+        },
+        (error) => {
+          alert(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            console.log(downloadURL);
+            setImgUrl(downloadURL);
+          });
+        }
+      );
+    }
+  };
+
+  const openPostHandler = () => {
+    setIsModalOpen(true);
+  };
   return (
     <div class="bg-gradient-to-r lg:h-full md:h-screen from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[15%] p-5">
       <div class=" bg-white  relative flex">
+        <div>
+          <Modal isOpen={isModalOpen} onClose={closeModal} />
+        </div>
         <div class="w-1/4 h-full bg-[#F7F7F7]">
           <div class=" flex items-center justify-center mt-20">
             <div className=" bg-[#FB1978] border-[#FB1978] w-28 rounded-full">
@@ -124,13 +175,27 @@ function Selection() {
                 </div>
               </div>
             </div>
-            <div class="flex text-[#fff] bg-[#4600DB82] h-10 rounded px-10 justify-around items-center">
-              <div class="w-10">
-                <p class="font-[500] text-[20px]">+</p>
-              </div>
-              <div>
-                <p class="font-[300] text-[15px] ">Create New Post</p>
-              </div>
+            <div>
+              <button
+                // onClick={() => fileInputRef.current.click()}
+                onClick={() => openPostHandler()}
+                className="flex text-[#fff] bg-[#4600DB82] h-10 rounded px-10 justify-around items-center"
+              >
+                <div className="w-10">
+                  <p className="font-[500] text-[20px]">+</p>
+                </div>
+                <div>
+                  <p className="font-[300] text-[15px]">Create New Post</p>
+                </div>
+              </button>
+
+              <input
+                onChange={handleFileChange}
+                multiple={false}
+                ref={fileInputRef}
+                type="file"
+                hidden
+              />
             </div>
             <div class=" items-center h-10 flex-row flex justify-center font-[Poppins]  gap-10  ">
               <svg

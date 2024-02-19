@@ -2,9 +2,19 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/modal";
 import LeftSideBar from "../components/leftSideBar";
+import firebase from "firebase/compat/app";
 import Search from "../images/search.png";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
+import {
+  fetchMessages,
+  addMessage,
+  getAllUsers,
+  addFollowing,
+  getUserById,
+  getFollowers,
+  getFollowings,
+} from "../redux/features/user";
 
 import {
   getPostById,
@@ -13,6 +23,9 @@ import {
   incrementLikes,
   addCommentToPost,
   getCommentsById,
+  deleteComment,
+  deletePost,
+  getPostsByUserId,
 } from "../redux/features/post";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import BottomBar from "../components/bottomBar";
@@ -25,11 +38,14 @@ export default function DesignersTab() {
   const [showEmojis, setShowEmojis] = useState(false);
   const [comment, setComment] = useState("");
   const [id, setId] = useState(-1);
+  const [postId, setPostId] = useState(-1);
   const [show, setShow] = useState(false);
   const [commentId, setCommentId] = useState(-1);
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const { getAllUsersData } = useSelector((state) => ({
+    ...state.user,
+  }));
+
   const { postByIdData, allPostsData, getCommentsByIdData } = useSelector(
     (state) => ({
       ...state.post,
@@ -38,6 +54,7 @@ export default function DesignersTab() {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getAllPosts());
+    dispatch(getAllUsers());
   }, []);
 
   function getTimeAgo(timestamp) {
@@ -65,7 +82,7 @@ export default function DesignersTab() {
   const formattedTimeAgo = getTimeAgo(timestamp);
 
   const likePostHandler = (id) => {
-    dispatch(likePost({ userId: 6, postId: id }));
+    dispatch(likePost({ userId: localStorage.getItem("userId"), postId: id }));
     dispatch(incrementLikes(id));
   };
 
@@ -83,10 +100,11 @@ export default function DesignersTab() {
       addCommentToPost({
         content: comment,
         postId: postId,
-        userId: 1,
+        userId: 3,
       })
     );
     setComment("");
+    sendMessage(comment);
   };
   const commentsShowHandler = (id) => {
     dispatch(getCommentsById(id));
@@ -100,12 +118,63 @@ export default function DesignersTab() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openModal = () => {
+  const openModal = (id) => {
+    setCommentId(id);
+    setIsModalOpen(true);
+  };
+  const openPostModal = (id) => {
+    setPostId(id);
+    setCommentId("");
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
+  };
+
+  const sendMessage = (content) => {
+    const timestamp = Date.now();
+    const username = "Virat Kohli";
+
+    const newMessage = {
+      content,
+      timestamp,
+      username,
+    };
+    firebase
+      .firestore()
+      .collection("messages")
+      .add(newMessage)
+      .then(() => {
+        dispatch(addMessage(newMessage));
+      })
+      .catch((error) => {
+        console.error("Error sending message:", error);
+      });
+  };
+
+  const handleModalClick = () => {
+    if (commentId) {
+      dispatch(deleteComment(commentId));
+    } else {
+      dispatch(deletePost(postId));
+    }
+    closeModal();
+  };
+
+  const userId = localStorage.getItem("userId");
+
+  console.log(userId);
+
+  const addFollowingHandler = (id) => {
+    dispatch(addFollowing({ userId: userId, followingId: id }));
+  };
+  const profileViewHandler = (id) => {
+    dispatch(getUserById(id));
+    dispatch(getFollowings(id));
+    dispatch(getFollowers(id));
+    dispatch(getPostsByUserId(id));
+    navigate("/profiles");
   };
 
   return (
@@ -128,9 +197,16 @@ export default function DesignersTab() {
             </label>
           </div>
         </div>
+
         <div>
-          <Modal isOpen={isModalOpen} onClose={closeModal} id={commentId} />
+          <Modal
+            onClick={handleModalClick}
+            isOpen={isModalOpen}
+            message={commentId ? "Comment" : "Post"}
+            onClose={closeModal}
+          />
         </div>
+
         <div class="flex   ">
           <div class="lg:w-1/4 mt-24 hidden sm:block lg:flex lg:flex-col  z-50">
             <LeftSideBar />
@@ -198,78 +274,110 @@ export default function DesignersTab() {
                 </div>
               </div>
             </div>
-            {allPostsData?.Posts?.map((item) => {
-              return (
-                <div class="bg-[#F8F5F5] py-3  mt-5">
-                  {showEmojis === item.id && (
-                    <div class="flex absolute z-50">
-                      <Picker
-                        data={data}
-                        onEmojiSelect={(item) => {
-                          emojisHandler(item);
-                        }}
-                      />
-                    </div>
-                  )}
-                  <div class="flex justify-between px-8 ">
-                    <div class="flex ">
-                      <img
-                        src={require("../images/Ellipse.jpg")}
-                        alt="Search Icon"
-                        className="h-8 rounded-full p-[3px]"
-                      />
-                      <div>
-                        <p class="text-[12px] font-normal ">Jerry Mathews</p>
-                        <p class="text-[10px] font-normal opacity-[0.6] ">
-                          New York City,NY
-                        </p>
+            {allPostsData?.Posts?.slice()
+              .sort((a, b) => b.id - a.id)
+              .map((item) => {
+                return (
+                  <div class="bg-[#F8F5F5] py-3  mt-5">
+                    {showEmojis === item.id && (
+                      <div class="flex absolute z-50">
+                        <Picker
+                          data={data}
+                          onEmojiSelect={(item) => {
+                            emojisHandler(item);
+                          }}
+                        />
                       </div>
-                    </div>
-                    <div class="flex items-center">
-                      <p class="text-[10px] font-normal opacity-[0.6] ">
-                        {getTimeAgo(item.created_at)} ago
-                      </p>
-                    </div>
-                  </div>
-                  <div class="flex items-center justify-center mt-2 px-16">
-                    <img
-                      src={item.imageUrls}
-                      alt="Search Icon"
-                      className="  p-[3px]"
-                    />
-                  </div>
-
-                  <div class="flex gap-10 ml-5 ">
-                    <button
-                      onClick={() => {
-                        likePostHandler(item.id);
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="27"
-                        height="27"
-                        viewBox="0 0 27 27"
-                        fill="none"
+                    )}
+                    <div class="flex justify-between px-8 ">
+                      <div class="flex ">
+                        <img
+                          src={require("../images/Ellipse.jpg")}
+                          alt="Search Icon"
+                          className="h-8 rounded-full p-[3px]"
+                        />
+                        <div>
+                          <p class="text-[12px] font-normal ">Jerry Mathews</p>
+                          <p class="text-[10px] font-normal opacity-[0.6] ">
+                            New York City,NY
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        class="flex items-center"
+                        onClick={() => openPostModal(item.id)}
                       >
-                        <rect
-                          x="1.42773"
-                          y="0.907593"
+                        <p class="text-[10px] font-normal opacity-[0.6] ">
+                          {getTimeAgo(item.created_at)} ago
+                        </p>
+                      </button>
+                    </div>
+                    <div class="mt-2 px-8">
+                      <p class="text-[12px] font-normal mb-2">{item.caption}</p>
+                    </div>
+                    <div class="flex items-center justify-center mt-2 px-16">
+                      <img
+                        src={item.imageUrls}
+                        alt="Search Icon"
+                        className="  p-[3px]"
+                      />
+                    </div>
+
+                    <div class="flex gap-10 ml-5 ">
+                      <button
+                        onClick={() => {
+                          likePostHandler(item.id);
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="27"
+                          height="27"
+                          viewBox="0 0 27 27"
+                          fill="none"
+                        >
+                          <rect
+                            x="1.42773"
+                            y="0.907593"
+                            width="25"
+                            height="25"
+                            stroke="white"
+                          />
+                          <path
+                            d="M7.92779 19.532V20.2931C7.92779 20.9136 7.42478 21.4166 6.80429 21.4166V21.4166C6.18379 21.4166 5.68079 20.9136 5.68079 20.2931V11.5341C5.68079 10.9136 6.18379 10.4106 6.80429 10.4106V10.4106C7.42478 10.4106 7.92779 10.9136 7.92779 11.5341V12.4293M7.92779 19.532L8.67716 20.2382C9.23034 20.7594 9.50692 21.0201 9.84583 21.2051C9.95403 21.2641 10.0789 21.3223 10.1937 21.367C10.5535 21.5073 10.9129 21.5491 11.6319 21.6326C12.6846 21.755 14.0056 21.8872 14.9278 21.9052C15.6213 21.9188 16.4378 21.873 17.2264 21.8048C18.5113 21.6935 19.1537 21.6379 19.7531 21.2741C19.9374 21.1623 20.1419 21.0035 20.2959 20.8526C20.7967 20.3619 21.0288 19.6986 21.4928 18.372L22.6872 14.9578C23.3122 13.1708 22.0683 11.2783 20.18 11.1433L18.1957 11.0015C17.5229 10.9534 17.0449 10.3259 17.1772 9.6644V9.6644C17.5548 8.34445 17.5539 7.20923 17.1744 6.01798C16.9509 5.31654 16.2669 4.90759 15.5456 4.90759C15.0405 4.90759 14.56 5.12385 14.3561 5.59644C13.9567 6.52225 13.2824 8.42595 12.2995 9.4312C10.8387 10.9252 9.76571 11.7936 7.92779 12.4293M7.92779 19.532V12.4293"
+                            stroke="#292556"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                        <p>{item.likesCount}</p>
+                      </button>
+                      <button onClick={() => commentsShowHandler(item.id)}>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
                           width="25"
                           height="25"
-                          stroke="white"
-                        />
-                        <path
-                          d="M7.92779 19.532V20.2931C7.92779 20.9136 7.42478 21.4166 6.80429 21.4166V21.4166C6.18379 21.4166 5.68079 20.9136 5.68079 20.2931V11.5341C5.68079 10.9136 6.18379 10.4106 6.80429 10.4106V10.4106C7.42478 10.4106 7.92779 10.9136 7.92779 11.5341V12.4293M7.92779 19.532L8.67716 20.2382C9.23034 20.7594 9.50692 21.0201 9.84583 21.2051C9.95403 21.2641 10.0789 21.3223 10.1937 21.367C10.5535 21.5073 10.9129 21.5491 11.6319 21.6326C12.6846 21.755 14.0056 21.8872 14.9278 21.9052C15.6213 21.9188 16.4378 21.873 17.2264 21.8048C18.5113 21.6935 19.1537 21.6379 19.7531 21.2741C19.9374 21.1623 20.1419 21.0035 20.2959 20.8526C20.7967 20.3619 21.0288 19.6986 21.4928 18.372L22.6872 14.9578C23.3122 13.1708 22.0683 11.2783 20.18 11.1433L18.1957 11.0015C17.5229 10.9534 17.0449 10.3259 17.1772 9.6644V9.6644C17.5548 8.34445 17.5539 7.20923 17.1744 6.01798C16.9509 5.31654 16.2669 4.90759 15.5456 4.90759C15.0405 4.90759 14.56 5.12385 14.3561 5.59644C13.9567 6.52225 13.2824 8.42595 12.2995 9.4312C10.8387 10.9252 9.76571 11.7936 7.92779 12.4293M7.92779 19.532V12.4293"
-                          stroke="#292556"
-                          stroke-width="1.5"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
-                      <p>{item.likesCount}</p>
-                    </button>
-                    <button onClick={() => commentsShowHandler(item.id)}>
+                          viewBox="0 0 25 25"
+                          fill="none"
+                        >
+                          <path
+                            d="M7.42773 17.4076V17.4076C5.2186 17.4076 3.42773 15.6167 3.42773 13.4076V10.9076C3.42773 8.57296 3.42773 7.40564 3.90005 6.52201C4.27298 5.8243 4.84444 5.25284 5.54215 4.87991C6.42579 4.40759 7.5931 4.40759 9.92773 4.40759H14.9277C17.2624 4.40759 18.4297 4.40759 19.3133 4.87991C20.011 5.25284 20.5825 5.8243 20.9554 6.52201C21.4277 7.40564 21.4277 8.57296 21.4277 10.9076V10.9076C21.4277 13.2422 21.4277 14.4095 20.9554 15.2932C20.5825 15.9909 20.011 16.5623 19.3133 16.9353C18.4297 17.4076 17.2624 17.4076 14.9277 17.4076H12.4277"
+                            stroke="#292556"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                          <path
+                            d="M7.42773 17.4076L6.42773 20.4076L12.4277 17.4076"
+                            stroke="#292556"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                        <p>{item.commentsCount}</p>
+                      </button>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="25"
@@ -278,141 +386,118 @@ export default function DesignersTab() {
                         fill="none"
                       >
                         <path
-                          d="M7.42773 17.4076V17.4076C5.2186 17.4076 3.42773 15.6167 3.42773 13.4076V10.9076C3.42773 8.57296 3.42773 7.40564 3.90005 6.52201C4.27298 5.8243 4.84444 5.25284 5.54215 4.87991C6.42579 4.40759 7.5931 4.40759 9.92773 4.40759H14.9277C17.2624 4.40759 18.4297 4.40759 19.3133 4.87991C20.011 5.25284 20.5825 5.8243 20.9554 6.52201C21.4277 7.40564 21.4277 8.57296 21.4277 10.9076V10.9076C21.4277 13.2422 21.4277 14.4095 20.9554 15.2932C20.5825 15.9909 20.011 16.5623 19.3133 16.9353C18.4297 17.4076 17.2624 17.4076 14.9277 17.4076H12.4277"
-                          stroke="#292556"
-                          stroke-width="1.5"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M7.42773 17.4076L6.42773 20.4076L12.4277 17.4076"
+                          d="M10.4277 10.4076L15.9277 7.40759M10.4277 14.4076L15.9277 17.4076M18.9277 21.4076V21.4076C20.5846 21.4076 21.9277 20.0644 21.9277 18.4076V18.4076C21.9277 16.7507 20.5846 15.4076 18.9277 15.4076V15.4076C17.2709 15.4076 15.9277 16.7507 15.9277 18.4076V18.4076C15.9277 20.0644 17.2709 21.4076 18.9277 21.4076ZM18.9277 9.40759V9.40759C20.5846 9.40759 21.9277 8.06445 21.9277 6.40759V6.40759C21.9277 4.75074 20.5846 3.40759 18.9277 3.40759V3.40759C17.2709 3.40759 15.9277 4.75074 15.9277 6.40759V6.40759C15.9277 8.06445 17.2709 9.40759 18.9277 9.40759ZM7.42773 15.9076V15.9076C9.36073 15.9076 10.9277 14.3406 10.9277 12.4076V12.4076C10.9277 10.4746 9.36073 8.90759 7.42773 8.90759V8.90759C5.49474 8.90759 3.92773 10.4746 3.92773 12.4076V12.4076C3.92773 14.3406 5.49474 15.9076 7.42773 15.9076Z"
                           stroke="#292556"
                           stroke-width="1.5"
                           stroke-linecap="round"
                           stroke-linejoin="round"
                         />
                       </svg>
-                      <p>{item.commentsCount}</p>
-                    </button>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="25"
-                      height="25"
-                      viewBox="0 0 25 25"
-                      fill="none"
-                    >
-                      <path
-                        d="M10.4277 10.4076L15.9277 7.40759M10.4277 14.4076L15.9277 17.4076M18.9277 21.4076V21.4076C20.5846 21.4076 21.9277 20.0644 21.9277 18.4076V18.4076C21.9277 16.7507 20.5846 15.4076 18.9277 15.4076V15.4076C17.2709 15.4076 15.9277 16.7507 15.9277 18.4076V18.4076C15.9277 20.0644 17.2709 21.4076 18.9277 21.4076ZM18.9277 9.40759V9.40759C20.5846 9.40759 21.9277 8.06445 21.9277 6.40759V6.40759C21.9277 4.75074 20.5846 3.40759 18.9277 3.40759V3.40759C17.2709 3.40759 15.9277 4.75074 15.9277 6.40759V6.40759C15.9277 8.06445 17.2709 9.40759 18.9277 9.40759ZM7.42773 15.9076V15.9076C9.36073 15.9076 10.9277 14.3406 10.9277 12.4076V12.4076C10.9277 10.4746 9.36073 8.90759 7.42773 8.90759V8.90759C5.49474 8.90759 3.92773 10.4746 3.92773 12.4076V12.4076C3.92773 14.3406 5.49474 15.9076 7.42773 15.9076Z"
-                        stroke="#292556"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex ml-5">
-                    <div className="w-8 h-8 rounded-full bg-[#B48E8E] ml-0 z-10"></div>
-
-                    <div className="w-8 h-8 rounded-full bg-[#D9D9D9] ml-[-15px] z-20"></div>
-
-                    <div className="w-8 h-8 rounded-full bg-yellow-500 ml-[-15px] z-30"></div>
-                    <div class="items-start pl-5">
-                      <p>Liked by dj dynamo and 500 others</p>
                     </div>
-                  </div>
-                  <div className="flex  bg-white m-5  flex-col  ">
-                    <div className=" flex w-full flex-row  justify-between items-center rounded-t-lg border-b">
-                      <button
-                        onClick={() => setShowEmojis(item.id)}
-                        class="ml-2"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
+                    <div className="flex ml-5">
+                      <div className="w-8 h-8 rounded-full bg-[#B48E8E] ml-0 z-10"></div>
+
+                      <div className="w-8 h-8 rounded-full bg-[#D9D9D9] ml-[-15px] z-20"></div>
+
+                      <div className="w-8 h-8 rounded-full bg-yellow-500 ml-[-15px] z-30"></div>
+                      <div class="items-start pl-5">
+                        <p>Liked by dj dynamo and 500 others</p>
+                      </div>
+                    </div>
+                    <div className="flex  bg-white m-5  flex-col  ">
+                      <div className=" flex w-full flex-row  justify-between items-center rounded-t-lg border-b">
+                        <button
+                          onClick={() => setShowEmojis(item.id)}
+                          class="ml-2"
                         >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </button>
-                      <textarea
-                        multiple
-                        value={item.id === currentPostId ? comment : ""}
-                        onChange={(e) => handleCommentType(e, item.id)}
-                        onClick={() => {
-                          setShowEmojis(null);
-                        }}
-                        type="text"
-                        placeholder="Add a comment..."
-                        className="border  h-10 flex items-center justify-center resize-none border-gray-300  p-2 w-5/6 border-none focus:outline-none focus:border-none rounded-l-md"
-                      />
-                      <button
-                        onClick={() => handlePostComment(item.id)}
-                        className=" text-white p-2 rounded-r-md"
-                      >
-                        <img
-                          src={require("../images/post.png")}
-                          alt="Search Icon"
-                          className="h-5"
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </button>
+                        <textarea
+                          multiple
+                          value={item.id === currentPostId ? comment : ""}
+                          onChange={(e) => handleCommentType(e, item.id)}
+                          onClick={() => {
+                            setShowEmojis(null);
+                          }}
+                          type="text"
+                          placeholder="Add a comment..."
+                          className="border  h-10 flex items-center justify-center resize-none border-gray-300  p-2 w-5/6 border-none focus:outline-none focus:border-none rounded-l-md"
                         />
-                      </button>
-                    </div>
-                    {showComments && id === item.id && (
-                      <>
-                        {getCommentsByIdData?.Table?.map((item) => {
-                          return (
-                            <div
-                              className="flex px-4 my-2"
-                              key={item.commentId}
-                            >
-                              <div className="mr-4">
-                                <img
-                                  src={require("../images/Ellipse.jpg")}
-                                  className="w-10 h-10 rounded-full"
-                                  alt="User Avatar"
-                                />
-                              </div>
-                              <div className=" bg-[#f2f2f2] p-4 w-full rounded">
-                                <div className="flex items-center justify-between mb-1">
-                                  <span className="font-semibold mr-2">
-                                    Rachit
-                                  </span>
-                                  <div class="flex flex-col">
-                                    <span className="text-gray-500 text-sm">
-                                      {getTimeAgo(item.created_at)}
+                        <button
+                          onClick={() => handlePostComment(item.id)}
+                          className=" text-white p-2 rounded-r-md"
+                        >
+                          <img
+                            src={require("../images/post.png")}
+                            alt="Search Icon"
+                            className="h-5"
+                          />
+                        </button>
+                      </div>
+                      {showComments && id === item.id && (
+                        <>
+                          {getCommentsByIdData?.Table?.map((item) => {
+                            return (
+                              <div
+                                className="flex px-4 my-2"
+                                key={item.commentId}
+                              >
+                                <div className="mr-4">
+                                  <img
+                                    src={require("../images/Ellipse.jpg")}
+                                    className="w-10 h-10 rounded-full"
+                                    alt="User Avatar"
+                                  />
+                                </div>
+
+                                <div className=" bg-[#f2f2f2] p-4 w-full rounded">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="font-semibold mr-2">
+                                      Rachit
                                     </span>
+                                    <div class="flex flex-col">
+                                      <span className="text-gray-500 text-sm">
+                                        {getTimeAgo(item.created_at)}
+                                      </span>
+                                    </div>
                                   </div>
-                                </div>
-                                <div class="flex">
-                                  <div class="flex w-[95%]">
-                                    <p className="text-gray-700">
-                                      {item.content}
-                                    </p>
+                                  <div class="flex">
+                                    <div class="flex w-[95%]">
+                                      <p className="text-gray-700">
+                                        {item.content}
+                                      </p>
+                                    </div>
+                                    <button onClick={() => openModal(item.id)}>
+                                      <img
+                                        src={require("../images/delete.png")}
+                                        className="w-5 h-5 rounded-full"
+                                        alt="User Avatar"
+                                      />
+                                    </button>
                                   </div>
-                                  <button onClick={openModal}>
-                                    <img
-                                      src={require("../images/delete.png")}
-                                      className="w-5 h-5 rounded-full"
-                                      alt="User Avatar"
-                                    />
-                                  </button>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                      </>
-                    )}
+                            );
+                          })}
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
           <div class="lg:w-1/4 hidden sm:block lg:flex lg:flex-col  ">
             <div class=" items-center h-10 flex-row flex justify-center font-[Poppins]  gap-10  ">
@@ -572,94 +657,44 @@ export default function DesignersTab() {
                   />
                 </div>
               </div>
-              <div class="flex my-3 justify-between ">
-                <div class="flex">
-                  <img
-                    src={require("../images/Ellipse.jpg")}
-                    alt="Search Icon"
-                    className="h-10 rounded-full p-[3px]"
-                  />
-                  <div>
-                    <p class="text-[12px] font-normal ">Domnic</p>
-                    <p class="text-[10px] font-normal opacity-[0.6] ">
-                      Active 26m ago
-                    </p>
+
+              {getAllUsersData?.Table?.map((item) => {
+                return (
+                  <div class="flex my-3 justify-between ">
+                    <button onClick={() => profileViewHandler(item.id)}>
+                      <div class="flex justify-start items-start">
+                        <img
+                          src={
+                            item.profilePicture
+                              ? `${item.profilePicture}`
+                              : require("../images/Ellipse.jpg")
+                          }
+                          alt="Search Icon"
+                          className="h-10 rounded-full p-[3px]"
+                        />
+                        <div class="flex flex-col items-start">
+                          <p class="text-[12px] font-normal items-start ">
+                            {item.fullName}
+                          </p>
+                          <p class="text-[10px] font-normal opacity-[0.6] ">
+                            Active 26m ago
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => addFollowingHandler(item.id)}
+                      class="flex items-center "
+                    >
+                      <img
+                        src={require("../images/add-user.png")}
+                        alt="Search Icon"
+                        className=" h-4 rounded-full]"
+                      />
+                    </button>
                   </div>
-                </div>
-                <div class="flex items-center ">
-                  <img
-                    src={require("../images/add-user.png")}
-                    alt="Search Icon"
-                    className=" h-4 rounded-full]"
-                  />
-                </div>
-              </div>
-              <div class="flex my-3 justify-between ">
-                <div class="flex">
-                  <img
-                    src={require("../images/Ellipse.jpg")}
-                    alt="Search Icon"
-                    className="h-10 rounded-full p-[3px]"
-                  />
-                  <div>
-                    <p class="text-[12px] font-normal ">Domnic</p>
-                    <p class="text-[10px] font-normal opacity-[0.6] ">
-                      Active 26m ago
-                    </p>
-                  </div>
-                </div>
-                <div class="flex items-center ">
-                  <img
-                    src={require("../images/add-user.png")}
-                    alt="Search Icon"
-                    className=" h-4 rounded-full]"
-                  />
-                </div>
-              </div>
-              <div class="flex my-3 justify-between ">
-                <div class="flex">
-                  <img
-                    src={require("../images/Ellipse.jpg")}
-                    alt="Search Icon"
-                    className="h-10 rounded-full p-[3px]"
-                  />
-                  <div>
-                    <p class="text-[12px] font-normal ">Domnic</p>
-                    <p class="text-[10px] font-normal opacity-[0.6] ">
-                      Active 26m ago
-                    </p>
-                  </div>
-                </div>
-                <div class="flex items-center ">
-                  <img
-                    src={require("../images/add-user.png")}
-                    alt="Search Icon"
-                    className=" h-4 rounded-full]"
-                  />
-                </div>
-              </div>
-              <div class="flex my-3 justify-between ">
-                <div class="flex">
-                  <img
-                    src={require("../images/Ellipse.jpg")}
-                    alt="Search Icon"
-                    className="h-10 rounded-full p-[3px]"
-                  />
-                  <div>
-                    <p class="text-[12px] font-normal ">Domnic</p>
-                    <p class="text-[10px] font-normal opacity-[0.6] ">
-                      Active 26m ago
-                    </p>
-                  </div>
-                </div>
-                <div class="flex items-center ">
-                  <img
-                    src={require("../images/add-user.png")}
-                    alt="Search Icon"
-                    className=" h-4 rounded-full]"
-                  />
-                </div>
-              </div>
+                );
+              })}
             </div>
           </div>
         </div>
