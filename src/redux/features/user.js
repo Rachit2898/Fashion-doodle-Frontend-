@@ -19,27 +19,54 @@ export const fetchMessages = createAsyncThunk(
 
 export const getAllUsers = createAsyncThunk(
   "/users/getAllUsers",
-  async (body) => {
+  async (_, { signal }) => {
     const url = `http://localhost:3000/users/getAllUsers`;
+    console.log(signal);
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "access-control-allow-origin": "*",
+          "Content-Type": "application/json",
+        },
+        signal: signal,
+      });
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "access-control-allow-origin": "*",
-        "Content-Type": "application/json",
-      },
-    });
-    const myData = await response.json();
-
-    return myData;
+      const myData = await response.json();
+      return myData;
+    } catch (error) {
+      console.error("Error during request:", error.message);
+      throw error;
+    }
   }
 );
+
 export const addFollowing = createAsyncThunk(
   "/users/addFollowing",
 
   async (body) => {
     console.log(body);
     const url = `http://localhost:3000/users/addFollowing`;
+
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "access-control-allow-origin": "*",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    const myData = await response.json();
+
+    return myData;
+  }
+);
+export const removeFollowing = createAsyncThunk(
+  "/users/removeFollowing",
+
+  async (body) => {
+    console.log(body);
+    const url = `http://localhost:3000/users/removeFollowing`;
 
     const response = await fetch(url, {
       method: "PUT",
@@ -124,6 +151,9 @@ const initialState = {
   getUserByIdData: {},
   getFollowersData: {},
   getFollowingData: {},
+  profileUserId: "",
+  followingUserId: "",
+  loading: false,
 };
 
 const userSlice = createSlice({
@@ -132,6 +162,13 @@ const userSlice = createSlice({
   reducers: {
     addMessage: (state, action) => {
       state.messages.push(action.payload);
+    },
+    setUserProfileId: (state, action) => {
+      state.profileUserId = action.payload;
+      localStorage.setItem("profileUserId", action.payload);
+    },
+    setUserFollowingId: (state, action) => {
+      state.followingUserId = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -181,9 +218,25 @@ const userSlice = createSlice({
       .addCase(getFollowers.fulfilled, (state, action) => {
         state.getFollowersData = action.payload;
       })
-      .addCase(getFollowers.rejected, (state, action) => {});
+      .addCase(getFollowers.rejected, (state, action) => {})
+      .addCase(removeFollowing.pending, (state) => {})
+      .addCase(removeFollowing.fulfilled, (state, action) => {
+        state.getFollowingData.following =
+          state.getFollowingData.following.filter(
+            (user) => user.id !== state.followingUserId
+          );
+      })
+      .addCase(removeFollowing.rejected, (state, action) => {})
+      .addCase(addFollowing.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addFollowing.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(addFollowing.rejected, (state, action) => {});
   },
 });
 
-export const { addMessage } = userSlice.actions;
+export const { addMessage, setUserProfileId, setUserFollowingId } =
+  userSlice.actions;
 export default userSlice.reducer;

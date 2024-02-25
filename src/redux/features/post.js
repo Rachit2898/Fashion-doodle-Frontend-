@@ -1,8 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-export const getPostById = createAsyncThunk("auth/postById", async (body) => {
-  console.log(body);
-  const url = `http://localhost:3000/posts/postById/1`;
+export const getPostById = createAsyncThunk("auth/postById", async (id) => {
+  const url = `http://localhost:3000/posts/postById/${id}`;
 
   const response = await fetch(url, {
     method: "GET",
@@ -10,7 +9,6 @@ export const getPostById = createAsyncThunk("auth/postById", async (body) => {
       "access-control-allow-origin": "*",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body),
   });
   const myData = await response.json();
 
@@ -207,6 +205,7 @@ const postSlice = createSlice({
       .addCase(addCommentToPost.pending, (state) => {})
       .addCase(addCommentToPost.fulfilled, (state, action) => {
         state.addCommentToPostData = action.payload;
+        state.getCommentsByIdData.Table.push(action.payload?.Table);
       })
       .addCase(addCommentToPost.rejected, (state, action) => {})
       .addCase(getCommentsById.pending, (state) => {})

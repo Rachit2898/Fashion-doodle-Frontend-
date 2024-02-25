@@ -1,19 +1,18 @@
 // Modal.js
 
 import React, { useState } from "react";
+import Modal from "./modal";
 import { useNavigate } from "react-router-dom";
 import {
-  fetchMessages,
-  addMessage,
-  getAllUsers,
-  addFollowing,
   getUserById,
   getFollowers,
   getFollowings,
+  setUserFollowingId,
+  removeFollowing,
 } from "../redux/features/user";
 import { Provider, useDispatch, useSelector } from "react-redux";
 
-const Modal = ({ isOpen, onClick, onClose, message }) => {
+const FollowModal = ({ isOpen, onClick, onClose, message }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const profileViewHandler = (id) => {
@@ -24,10 +23,43 @@ const Modal = ({ isOpen, onClick, onClose, message }) => {
     onClose();
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [id, setId] = useState("");
+  const [name, setName] = useState("");
+  const handleModalClick = () => {
+    console.log({ userId: localStorage.getItem("userId"), followingId: id });
+    dispatch(
+      removeFollowing({
+        userId: localStorage.getItem("userId"),
+        followingId: id,
+      })
+    );
+    closeModal();
+  };
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const openModal = (id, name) => {
+    setId(id);
+    setIsModalOpen(true);
+    setName(name);
+    dispatch(setUserFollowingId(id));
+  };
+
   if (!isOpen) return null;
   return (
-    <div className="fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-full">
+    <div className="fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-full ">
       <div className="relative p-4 w-full max-w-md">
+        <div>
+          <Modal
+            onClick={handleModalClick}
+            isOpen={isModalOpen}
+            message={`If you change your mind, you'll have to request to follow ${name} again.`}
+            onClose={closeModal}
+            message2="Unfollow"
+          />
+        </div>
         <div className="relative bg-white rounded-lg shadow">
           <button
             type="button"
@@ -51,8 +83,8 @@ const Modal = ({ isOpen, onClick, onClose, message }) => {
             </svg>
             <span className="sr-only">Close modal</span>
           </button>
-          <div class="relative p-4 w-full max-w-md max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-[#191919]">
+          <div className="relative p-4 w-full max-w-md max-h-96 overflow-y-auto">
+            <div class="relative bg-white rounded-lg shadow   dark:bg-[#191919]">
               <div class="border-b border-white">
                 <div class="flex justify-center items-center py-3">
                   <p class="text-white font-bold">Follwers</p>
@@ -106,6 +138,15 @@ const Modal = ({ isOpen, onClick, onClose, message }) => {
                           </div>
                         </div>
                       </button>
+                      {localStorage.getItem("userId") != item.id ? (
+                        <button
+                          onClick={() => openModal(item.id, item.fullName)}
+                        >
+                          <p class="text-white text-xs font-bold bg-[#2b2b2b] rounded-lg p-2 px-4">
+                            Following
+                          </p>
+                        </button>
+                      ) : null}
                     </div>
                   );
                 })}
@@ -118,4 +159,4 @@ const Modal = ({ isOpen, onClick, onClose, message }) => {
   );
 };
 
-export default Modal;
+export default FollowModal;

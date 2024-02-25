@@ -1,15 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Provider, useDispatch, useSelector } from "react-redux";
+import {
+  getUserById,
+  getFollowers,
+  getFollowings,
+} from "../redux/features/user";
+import {
+  getPostsByUserId,
+  getPostById,
+  getCommentsById,
+} from "../redux/features/post";
 import Modal from "../components/followers";
+import PostModal from "../components/postShowModal";
 
 function NewDesignersTab() {
+  const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { getUserByIdData, getFollowersData, getFollowingData } = useSelector(
-    (state) => ({
-      ...state.user,
-    })
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+
+  const {
+    getUserByIdData,
+    getFollowersData,
+    getFollowingData,
+    followingId,
+    followingUserId,
+  } = useSelector((state) => ({
+    ...state.user,
+  }));
+
+  const [id, SetId] = useState(
+    followingId ? followingId : localStorage.getItem("profileUserId")
   );
+
+  console.log(id);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getUserById(id));
+      dispatch(getFollowings(id));
+      dispatch(getFollowers(id));
+      dispatch(getPostsByUserId(id));
+    }
+  }, []);
+
   const { postsByUserIdData } = useSelector((state) => ({
     ...state.post,
   }));
@@ -24,7 +58,14 @@ function NewDesignersTab() {
     closeModal();
   };
 
-  console.log(postsByUserIdData);
+  const openPostModal = (id) => {
+    dispatch(getPostById(id));
+    dispatch(getCommentsById(id));
+    setIsPostModalOpen(true);
+  };
+  const closePostModal = (id) => {
+    setIsPostModalOpen(false);
+  };
 
   return (
     <div class="lg:bg-gradient-to-r lg:h-full h-screen md:bg-white from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[15%] lg:p-5">
@@ -92,6 +133,14 @@ function NewDesignersTab() {
             message={getFollowingData}
           />
         </div>
+        <div class="z-50">
+          <PostModal
+            onClick={handleModalClick}
+            isOpen={isPostModalOpen}
+            onClose={closePostModal}
+            message={getFollowingData}
+          />
+        </div>
 
         <div class="mt-14  justify-center gap-56 lg:flex hidden  md:block">
           <div class="flex flex-col justify-center items-center">
@@ -113,12 +162,23 @@ function NewDesignersTab() {
 
         <div class="mt-10 justify-center gap-16 lg:flex hidden md:flex flex-wrap">
           {postsByUserIdData?.Table?.map((item) => (
-            <img src={item?.imageUrls} alt="Search Icon" class="max-h-96" />
+            <>
+              <button
+                onClick={() => openPostModal(item.id)}
+                class="bg-white p-2 flex justify-center items-center "
+              >
+                <img
+                  src={item?.imageUrls}
+                  alt="Search Icon"
+                  class="max-h-72 max-w-72"
+                />
+              </button>
+            </>
           ))}
         </div>
 
         <div className=" lg:hidden flex  absolute mt-36 flex-row justify-around w-screen">
-          <div className="bg-[#4600DB82] px-5 rounded-xl flex justify-center items-center">
+          <div className="bg-[#110f1682] px-5 rounded-xl flex justify-center items-center">
             <text className="text-white font-[200] text-sm">Follow</text>
           </div>
           <div className="bg-[#4600DB82] px-5 rounded-xl flex justify-center items-center">
