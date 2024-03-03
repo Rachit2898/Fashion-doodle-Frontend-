@@ -8,6 +8,10 @@ import { createPost } from "../redux/features/post";
 
 const Modal = ({ isOpen, onClose, id }) => {
   const dispatch = useDispatch();
+
+  const { signInData } = useSelector((state) => ({
+    ...state.auth,
+  }));
   const [caption, setCaption] = useState("");
   const [file, setFile] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
@@ -15,7 +19,6 @@ const Modal = ({ isOpen, onClose, id }) => {
   const [imgUrl, setImgUrl] = useState(null);
   const [progresspercent, setProgresspercent] = useState(0);
   const fileInputRef = useRef();
-  if (!isOpen) return null;
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -59,11 +62,15 @@ const Modal = ({ isOpen, onClose, id }) => {
             if (downloadURL) {
               dispatch(
                 createPost({
-                  caption: caption,
-                  imageUrls: downloadURL,
-                  videoUrl: "",
-                  location: "Delhi",
-                  userId: localStorage.getItem("userId"),
+                  data: {
+                    caption: caption,
+                    imageUrls: downloadURL,
+                    videoUrl: "",
+                    location: "Delhi",
+                    userId: localStorage.getItem("userId"),
+                  },
+                  token:
+                    signInData?.Table?.token || localStorage.getItem("token"),
                 })
               );
             }
@@ -79,7 +86,7 @@ const Modal = ({ isOpen, onClose, id }) => {
     setImagePreview(null);
     onClose();
   };
-
+  if (!isOpen) return null;
   return (
     <div className="fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-full">
       <div className="relative p-4 w-full max-w-md">

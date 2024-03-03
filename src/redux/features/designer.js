@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { apiUrl, useApiToken } from "../../utils/utils";
 
 export const fetchData = createAsyncThunk("design/fetchData", async () => {
   const response = await fetch("your/api/endpoint");

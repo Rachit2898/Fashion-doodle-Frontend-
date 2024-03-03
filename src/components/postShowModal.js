@@ -33,6 +33,10 @@ const Modal = ({ isOpen, onClose, id }) => {
   const [progresspercent, setProgresspercent] = useState(0);
   const fileInputRef = useRef();
 
+  const { signInData } = useSelector((state) => ({
+    ...state.auth,
+  }));
+
   const emojisHandler = (emoji) => {
     setComment((prevComment) => prevComment + emoji.native);
   };
@@ -84,9 +88,12 @@ const Modal = ({ isOpen, onClose, id }) => {
   const handlePostComment = () => {
     dispatch(
       addCommentToPost({
-        content: comment,
-        postId: postByIdData?.Table?.id,
-        userId: localStorage.getItem("userId"),
+        data: {
+          content: comment,
+          postId: postByIdData?.Table?.id,
+          userId: localStorage.getItem("userId"),
+        },
+        token: signInData?.Table?.token || localStorage.getItem("token"),
       })
     );
     setComment("");
@@ -133,52 +140,63 @@ const Modal = ({ isOpen, onClose, id }) => {
                   <span class="sr-only">Close modal</span>
                 </button>
               </div>
+              {console.log("sdmncbsdcbdfhjv", postByIdData)}
               <div className="p-4 md:p-5 text-center flex flex-row">
                 <div class=" justify-center gap-16 lg:flex hidden md:flex flex-wrap  ">
                   <button class="bg-white p-2 flex justify-center items-center">
                     <img
                       src={postByIdData?.Table?.imageUrls}
                       alt="Search Icon"
-                      class="h-full min-w-96 "
+                      class="max-h-96 max-w-96 "
                     />
                   </button>
                 </div>
                 <div class="  min-w-96 h-full ">
                   <div className="relative p-4 w-full max-w-md max-h-96 mb-32 overflow-y-auto">
-                    {getCommentsByIdData?.Table?.map((item) => {
-                      return (
-                        <div className="flex  m-2 " key={item.commentId}>
-                          <div className="mr-4">
-                            <img
-                              src={require("../images/Ellipse.jpg")}
-                              className="w-10 h-9 rounded-full"
-                              alt="User Avatar"
-                            />
-                          </div>
+                    {!!getCommentsByIdData?.Table ? (
+                      <>
+                        {getCommentsByIdData?.Table?.map((item) => {
+                          return (
+                            <div className="flex  m-2 " key={item.commentId}>
+                              <div className="mr-4">
+                                <img
+                                  src={require("../images/Ellipse.jpg")}
+                                  className="w-10 h-9 rounded-full"
+                                  alt="User Avatar"
+                                />
+                              </div>
 
-                          <div className="w-full flex flex-col justify-start rounded  ">
-                            <div className="flex mb-1">
-                              <span className="font-semibold  text-white">
-                                Rachit:
-                              </span>
-                              <div class="flex pl-2">
-                                <div class="flex flex-wrap">
-                                  <p className=" text-white">{item.content}</p>
+                              <div className="w-full flex flex-col justify-start rounded  ">
+                                <div className="flex mb-1">
+                                  <span className="font-semibold  text-white">
+                                    Rachit:
+                                  </span>
+                                  <div class="flex pl-2">
+                                    <div class="flex flex-wrap">
+                                      <p className=" text-white">
+                                        {item.content}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="  flex justify-start">
+                                  <span className=" text-sm text-white">
+                                    {getTimeAgo(item.created_at)}
+                                  </span>
                                 </div>
                               </div>
                             </div>
-
-                            <div class="  flex justify-start">
-                              <span className=" text-sm text-white">
-                                {getTimeAgo(item.created_at)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <div>
+                        <p class="text-white">No comments</p>
+                      </div>
+                    )}
                   </div>
-                  <div class="absolute bottom-0  w-[50%]  text-center flex flex-col ">
+                  <div class="absolute bottom-0 lg:w-[50%] w-full text-center flex flex-col ">
                     <div class="flex gap-10  ">
                       <button
                       //   onClick={() => {
@@ -251,9 +269,9 @@ const Modal = ({ isOpen, onClose, id }) => {
                       </svg>
                     </div>
 
-                    <div className="flex  bg-white m-5  flex-col  ">
+                    <div className="flex  bg-white lg:m-5 m-0  flex-col  ">
                       <div className=" flex w-full flex-row  justify-between items-center rounded-t-lg border-b">
-                        <button onClick={setShowEmojis} class="ml-2">
+                        <button onClick={setShowEmojis} class="lg:ml-2 ml-0">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-5 w-5"

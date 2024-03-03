@@ -8,11 +8,14 @@ function SignIn() {
     ...state.auth,
   }));
 
+  console.log(signInData);
+
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
   const handleEmailChange = (event) => {
@@ -36,6 +39,10 @@ function SignIn() {
       password: password,
     };
 
+    if (rememberMe) {
+      localStorage.setItem("rememberedUsername", email.split("@")[0]);
+    }
+
     dispatch(signIn(body));
 
     // if (email === "admin@admin.mail" && password === "Admin123") {
@@ -48,8 +55,30 @@ function SignIn() {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
+  useEffect(() => {
+    const rememberedUsername = localStorage.getItem("rememberedUsername");
+
+    if (rememberedUsername) {
+      setEmail(rememberedUsername);
+      setRememberMe(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (signInData?.statusCode != "200") {
+      setError(signInData.message);
+    }
+  }, [signInData]);
+
   return (
-    <div class="bg-gradient-to-r lg:h-screen md:h-screen  from-[rgba(219,0,158,0.11)] to- lg:py-[5%] lg:pl-[9%] lg:pr-[20%] p-5">
+    <div class="bg-gradient-to-r lg:h-screen md:h-screen  from-[rgba(219,0,158,0.11)] to- lg:py-[5%] lg:pb-[5%] lg:pl-[9%] lg:pr-[20%] p-5">
+      {/* <div class=" flex my-2">
+        <img
+          src={require("../images/Logo.png")}
+          alt="Search Icon"
+          class="h-20"
+        />
+      </div> */}
       <div class=" rounded-lg bg-white ">
         <div class="grid lg:grid-cols-2 justify-between p-5  lg:p-0">
           <div class="lg:pl-[60px] lg:pt-[50px] lg:w-[70%]  ">
@@ -58,7 +87,7 @@ function SignIn() {
                 Welcome Back
               </p>
             </div>
-            <div class="py-8">
+            <div class="py-2">
               <p class="text-black font-poppins text-5xl font-medium leading-normal">
                 Log In
               </p>
@@ -115,12 +144,28 @@ function SignIn() {
               </div>
               {error && <p className="text-red-500 font-[300]">{error}</p>}
 
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
+              />
+              <label htmlFor="rememberMe"> Remember Me</label>
+
               <div class="w-48 h-10 bg-[#7D97AA] rounded-full flex items-center justify-center mx-auto my-5">
                 <button
                   onClick={handleLoginClick}
                   class="text-white font-poppins text-20 font-extrabold leading-normal"
                 >
                   LOGIN
+                </button>
+              </div>
+              <div class="w-48 h-10rounded-full flex items-center justify-center mx-auto my-5">
+                <button
+                  onClick={() => navigate("/signin")}
+                  class="text-[#7D97AA] font-poppins text-20 font-[600] leading-normal"
+                >
+                  Create a new account?
                 </button>
               </div>
 
@@ -216,9 +261,9 @@ function SignIn() {
               </div>
             </div>
           </div>
-          <div class="flex  justify-end mt-5 lg:mt-0 ">
+          <div class="flex  justify-end mt-5 lg:mt-0 bg-[#f9d7d7] ">
             <img
-              src="https://firebasestorage.googleapis.com/v0/b/droodle-3024f.appspot.com/o/files%2FRectangle%20700.png?alt=media&token=99820c27-fa5b-436c-891f-2392f87e2ab0"
+              src={require("../images/Logo.png")}
               class="lg:h-[83.7vh]  rounded-lg"
             />
           </div>

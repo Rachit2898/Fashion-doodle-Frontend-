@@ -1,13 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { apiUrl, useApiToken } from "../../utils/utils";
 
-export const getPostById = createAsyncThunk("auth/postById", async (id) => {
-  const url = `http://localhost:3000/posts/postById/${id}`;
+export const getPostById = createAsyncThunk("auth/postById", async (body) => {
+  const url = `${apiUrl}/posts/postById/${body.id}`;
 
   const response = await fetch(url, {
     method: "GET",
     headers: {
       "access-control-allow-origin": "*",
       "Content-Type": "application/json",
+      Authorization: "Bearer " + body.token,
     },
   });
   const myData = await response.json();
@@ -16,15 +18,16 @@ export const getPostById = createAsyncThunk("auth/postById", async (id) => {
 });
 
 export const likePost = createAsyncThunk("auth/likepost", async (body) => {
-  const url = `http://localhost:3000/posts/likePost`;
+  const url = `${apiUrl}/posts/likePost`;
 
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "access-control-allow-origin": "*",
       "Content-Type": "application/json",
+      Authorization: "Bearer " + body.token,
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(body.data),
   });
   const myData = await response.json();
 
@@ -34,15 +37,16 @@ export const likePost = createAsyncThunk("auth/likepost", async (body) => {
 export const addCommentToPost = createAsyncThunk(
   "auth/addCommentToPost",
   async (body) => {
-    const url = `http://localhost:3000/comments/addCommentToPost`;
+    const url = `${apiUrl}/comments/addCommentToPost`;
 
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "access-control-allow-origin": "*",
         "Content-Type": "application/json",
+        Authorization: "Bearer " + body.token,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(body.data),
     });
     const myData = await response.json();
 
@@ -52,34 +56,44 @@ export const addCommentToPost = createAsyncThunk(
 
 export const getAllPosts = createAsyncThunk(
   "auth/getAllPosts",
-  async (body) => {
-    console.log(body);
-    const url = `http://localhost:3000/posts/getAllPosts`;
+  async (token) => {
+    const url = "http://89.116.121.207:4000/posts/getAllPost";
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "access-control-allow-origin": "*",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-    const myData = await response.json();
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      });
 
-    return myData;
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const myData = await response.json();
+      console.log("Response Data:", myData);
+
+      return myData;
+    } catch (error) {
+      console.error("Error:", error.message);
+      throw error;
+    }
   }
 );
 
 export const getCommentsById = createAsyncThunk(
   "auth/getCommentsById",
   async (body) => {
-    const url = `http://localhost:3000/comments/commentsByPost/${body}`;
+    const url = `${apiUrl}/comments/commentsByPost/${body.id}`;
 
     const response = await fetch(url, {
       method: "GET",
       headers: {
         "access-control-allow-origin": "*",
         "Content-Type": "application/json",
+        Authorization: "Bearer " + body.token,
       },
     });
     const myData = await response.json();
@@ -90,13 +104,15 @@ export const getCommentsById = createAsyncThunk(
 export const getPostsByUserId = createAsyncThunk(
   "auth/getPostsByUserId",
   async (body) => {
-    const url = `http://localhost:3000/posts/postsByUser/${body}`;
+    console.log("shcbdhjbdfhvbfvefv", body.token);
+    const url = `${apiUrl}/posts/postsByUser/${body.id}`;
 
     const response = await fetch(url, {
       method: "GET",
       headers: {
         "access-control-allow-origin": "*",
         "Content-Type": "application/json",
+        Authorization: "Bearer " + body.token,
       },
     });
     const myData = await response.json();
@@ -106,9 +122,9 @@ export const getPostsByUserId = createAsyncThunk(
 );
 export const deleteComment = createAsyncThunk(
   "auth/deleteComment",
-  async (id) => {
-    const url = `http://localhost:3000/comments/deleteComment/${decodeURIComponent(
-      id
+  async (body) => {
+    const url = `${apiUrl}/comments/deleteComment/${decodeURIComponent(
+      body.id
     )}`;
 
     const response = await fetch(url, {
@@ -116,6 +132,7 @@ export const deleteComment = createAsyncThunk(
       headers: {
         "access-control-allow-origin": "*",
         "Content-Type": "application/json",
+        Authorization: "Bearer " + body.token,
       },
     });
     const myData = await response.json();
@@ -125,28 +142,30 @@ export const deleteComment = createAsyncThunk(
 );
 
 export const createPost = createAsyncThunk("auth/createPost", async (body) => {
-  const url = `http://localhost:3000/posts/createPost`;
+  const url = `${apiUrl}/posts/createPost`;
 
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "access-control-allow-origin": "*",
       "Content-Type": "application/json",
+      Authorization: "Bearer " + body.token,
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(body.data),
   });
   const myData = await response.json();
 
   return myData;
 });
-export const deletePost = createAsyncThunk("auth/deletePost", async (id) => {
-  const url = `http://localhost:3000/posts/deletePost/${id}`;
+export const deletePost = createAsyncThunk("auth/deletePost", async (body) => {
+  const url = `${apiUrl}/posts/deletePost/${body.id}`;
 
   const response = await fetch(url, {
     method: "DELETE",
     headers: {
       "access-control-allow-origin": "*",
       "Content-Type": "application/json",
+      Authorization: "Bearer " + body.token,
     },
   });
   const myData = await response.json();
@@ -172,9 +191,20 @@ const postSlice = createSlice({
   reducers: {
     incrementLikes: (state, action) => {
       const postId = action.payload;
-      const post = state.allPostsData.Posts.find((item) => item.id === postId);
+      const post = state?.allPostsData?.Table?.find(
+        (item) => item.id === postId
+      );
       if (post) {
         post.likesCount += 1;
+      }
+    },
+    incrementComments: (state, action) => {
+      const postId = action.payload;
+      const post = state?.allPostsData?.Table?.find(
+        (item) => item.id === postId
+      );
+      if (post) {
+        post.commentsCount += 1;
       }
     },
   },
@@ -195,7 +225,7 @@ const postSlice = createSlice({
         state.likePostData = action.payload;
 
         const likedPostId = action.payload.id;
-        state.allPostsData.Posts.forEach((post) => {
+        state.allPostsData?.Table?.forEach((post) => {
           if (post.id === likedPostId) {
             post.likesCount += 1;
           }
@@ -205,7 +235,15 @@ const postSlice = createSlice({
       .addCase(addCommentToPost.pending, (state) => {})
       .addCase(addCommentToPost.fulfilled, (state, action) => {
         state.addCommentToPostData = action.payload;
-        state.getCommentsByIdData.Table.push(action.payload?.Table);
+        // state.getCommentsByIdData?.Table.push(action.payload?.Table);
+        console.log("smndcbdscvfvbfehvbhejfb", action.payload);
+        const likedPostId = action.payload.Table.postId;
+        console.log("smndcbdscvfvbfehvbhejfbddddd", state.allPostsData);
+        state.allPostsData?.Table?.forEach((post) => {
+          if (post.id === likedPostId) {
+            post.commentsCount += 1;
+          }
+        });
       })
       .addCase(addCommentToPost.rejected, (state, action) => {})
       .addCase(getCommentsById.pending, (state) => {})
@@ -217,7 +255,7 @@ const postSlice = createSlice({
       .addCase(deleteComment.fulfilled, (state, action) => {
         const deletedCommentId = action.payload.deletedPost.id;
         state.getCommentsByIdData.Table =
-          state.getCommentsByIdData.Table.filter(
+          state.getCommentsByIdData?.Table.filter(
             (comment) => comment.id !== deletedCommentId
           );
       })

@@ -26,8 +26,8 @@ function NewDesignersTab() {
               <div class="flex lg:flex-row flex-col justify-end items-center">
                 <img
                   src={
-                    getUserByTokenData.profilePicture
-                      ? getUserByTokenData.profilePicture
+                    getUserByTokenData?.profilePicture
+                      ? getUserByTokenData?.profilePicture
                       : "https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?size=626&ext=jpg&ga=GA1.1.1259320201.1707409598&semt=ais"
                   }
                   class="rounded-full lg:w-72 h-40"
@@ -35,7 +35,7 @@ function NewDesignersTab() {
                 <div class="w-full flex flex-col lg:items-center">
                   <div class="ml-2">
                     <p class="text-xl lg:text-2xl font-light">
-                      {getUserByTokenData.fullName}
+                      {getUserByTokenData?.fullName}
                     </p>
                     <p class="text-sm font-light hidden  md:block">
                       723 Followers

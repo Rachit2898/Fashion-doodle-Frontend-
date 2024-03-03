@@ -17,7 +17,11 @@ import PostModal from "../components/postShowModal";
 function NewDesignersTab() {
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { signInData } = useSelector((state) => ({
+    ...state.auth,
+  }));
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("post");
 
   const {
     getUserByIdData,
@@ -37,10 +41,30 @@ function NewDesignersTab() {
 
   useEffect(() => {
     if (id) {
-      dispatch(getUserById(id));
-      dispatch(getFollowings(id));
-      dispatch(getFollowers(id));
-      dispatch(getPostsByUserId(id));
+      dispatch(
+        getUserById({
+          id: id,
+          token: signInData?.Table?.token || localStorage.getItem("token"),
+        })
+      );
+      dispatch(
+        getFollowings({
+          id: id,
+          token: signInData?.Table?.token || localStorage.getItem("token"),
+        })
+      );
+      dispatch(
+        getFollowers({
+          id: id,
+          token: signInData?.Table?.token || localStorage.getItem("token"),
+        })
+      );
+      dispatch(
+        getPostsByUserId({
+          id: id,
+          token: signInData?.Table?.token || localStorage.getItem("token"),
+        })
+      );
     }
   }, []);
 
@@ -59,14 +83,29 @@ function NewDesignersTab() {
   };
 
   const openPostModal = (id) => {
-    dispatch(getPostById(id));
-    dispatch(getCommentsById(id));
+    dispatch(
+      getPostById({
+        id: id,
+        token: signInData?.Table?.token || localStorage.getItem("token"),
+      })
+    );
+    dispatch(
+      getCommentsById({
+        id: id,
+        token: signInData?.Table?.token || localStorage.getItem("token"),
+      })
+    );
     setIsPostModalOpen(true);
   };
   const closePostModal = (id) => {
     setIsPostModalOpen(false);
   };
 
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+  };
+
+  console.log(postsByUserIdData);
   return (
     <div class="lg:bg-gradient-to-r lg:h-full h-screen md:bg-white from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[15%] lg:p-5">
       <div class="bg-gradient-to-t lg:rounded-lg to-[#A0D5CB]  bg-white from-[#6EB5D300] lg:pb-[3%] relative">
@@ -75,8 +114,8 @@ function NewDesignersTab() {
             <div>
               <img
                 src={
-                  !!getUserByIdData.Table?.backGroundPic
-                    ? getUserByIdData.Table?.backGroundPic
+                  !!getUserByIdData?.Table?.backGroundPic
+                    ? getUserByIdData?.Table?.backGroundPic
                     : "https://img.freepik.com/free-photo/shopping-concept-close-up-portrait-young-beautiful-attractive-redhair-girl-smiling-looking-camera_1258-116839.jpg?size=626&ext=jpg&ga=GA1.1.1259320201.1707409598&semt=ais"
                 }
                 alt="Search Icon"
@@ -87,8 +126,8 @@ function NewDesignersTab() {
               <div class="flex lg:flex-row flex-col justify-end items-center">
                 <img
                   src={
-                    !!getUserByIdData.Table?.profilePicture
-                      ? getUserByIdData.Table?.profilePicture
+                    !!getUserByIdData?.Table?.profilePicture
+                      ? getUserByIdData?.Table?.profilePicture
                       : "https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?size=626&ext=jpg&ga=GA1.1.1259320201.1707409598&semt=ais"
                   }
                   class="rounded-full lg:w-72 h-40"
@@ -156,25 +195,79 @@ function NewDesignersTab() {
             class="flex flex-col justify-center items-center"
           >
             <p>Following</p>
-            <p>{getFollowingData?.following?.length}</p>
+            <p>
+              {getFollowingData?.following?.length
+                ? getFollowingData?.following?.length
+                : 0}
+            </p>
           </button>
         </div>
 
-        <div class="mt-10 justify-center gap-16 lg:flex hidden md:flex flex-wrap">
-          {postsByUserIdData?.Table?.map((item) => (
-            <>
-              <button
-                onClick={() => openPostModal(item.id)}
-                class="bg-white p-2 flex justify-center items-center "
+        <div className="flex justify-center mt-4 w-full  border-t-1 border-t-white pt-5">
+          <button
+            onClick={() => handleTabClick("post")}
+            className={`${
+              activeTab === "post"
+                ? "text-black flex justify-center items-center  border-t-2 border-t-white"
+                : " text-gray-700 flex justify-center items-center "
+            } px-4 py-2 mx-2  focus:outline-none`}
+          >
+            <img src={require("../images/postIcon.png")} class="   w-8" />
+            <text>Post</text>
+          </button>
+          <button
+            onClick={() => handleTabClick("reels")}
+            className={`${
+              activeTab === "reels"
+                ? "text-black flex justify-center items-center  border-t-2 border-t-white"
+                : " text-gray-700 flex justify-center items-center "
+            } px-4 py-2 mx-2 rounded-md focus:outline-none`}
+          >
+            <img src={require("../images/reels.png")} class="   w-8" />
+            <text> Reels</text>
+          </button>
+        </div>
+
+        <div className="mt-10 justify-center lg:flex hidden md:flex flex-wrap">
+          {activeTab === "post" &&
+            postsByUserIdData?.Table?.map((item, index) => (
+              <div
+                key={index}
+                className="w-full sm:w-1/2 md:w-1/3 lg:w-1/3 xl:w-1/3 p-2"
               >
-                <img
-                  src={item?.imageUrls}
-                  alt="Search Icon"
-                  class="max-h-72 max-w-72"
-                />
-              </button>
-            </>
-          ))}
+                <button
+                  onClick={() => openPostModal(item.id)}
+                  className="bg-white p-2 flex justify-center items-center"
+                >
+                  <img
+                    src={item?.imageUrls}
+                    alt="Post Image"
+                    className="max-h-72 max-w-80 object-contain"
+                  />
+                </button>
+              </div>
+            ))}
+
+          {activeTab === "reels" &&
+            postsByUserIdData?.Table?.map((item, index) => (
+              <div
+                key={index}
+                className="w-full sm:w-1/2 md:w-1/3 lg:w-1/3 xl:w-1/3 p-2"
+              >
+                <button
+                  onClick={() => openPostModal(item.id)}
+                  className="bg-white p-2 flex justify-center items-center"
+                >
+                  <img
+                    src={
+                      "https://seagulladvertising.com/hubfs/NRP-Introducing_Instagram_Reels_banner_FINAL.jpg"
+                    }
+                    alt="Post Image"
+                    className="max-h-72 max-w-80 object-contain"
+                  />
+                </button>
+              </div>
+            ))}
         </div>
 
         <div className=" lg:hidden flex  absolute mt-36 flex-row justify-around w-screen">

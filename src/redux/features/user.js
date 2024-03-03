@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import firebase from "firebase/compat/app";
 import { useNavigate } from "react-router-dom";
+import { apiUrl, useApiToken } from "../../utils/utils";
 
 export const fetchData = createAsyncThunk("user/fetchData", async () => {
   const response = await fetch("your/api/endpoint");
@@ -19,17 +20,17 @@ export const fetchMessages = createAsyncThunk(
 
 export const getAllUsers = createAsyncThunk(
   "/users/getAllUsers",
-  async (_, { signal }) => {
-    const url = `http://localhost:3000/users/getAllUsers`;
-    console.log(signal);
+  async (token) => {
+    const url = `${apiUrl}/users/getAllUsers`;
+
     try {
       const response = await fetch(url, {
         method: "GET",
         headers: {
           "access-control-allow-origin": "*",
           "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
         },
-        signal: signal,
       });
 
       const myData = await response.json();
@@ -46,15 +47,16 @@ export const addFollowing = createAsyncThunk(
 
   async (body) => {
     console.log(body);
-    const url = `http://localhost:3000/users/addFollowing`;
+    const url = `${apiUrl}/users/addFollowing`;
 
     const response = await fetch(url, {
       method: "PUT",
       headers: {
         "access-control-allow-origin": "*",
         "Content-Type": "application/json",
+        Authorization: "Bearer " + body.token,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(body.data),
     });
     const myData = await response.json();
 
@@ -66,15 +68,16 @@ export const removeFollowing = createAsyncThunk(
 
   async (body) => {
     console.log(body);
-    const url = `http://localhost:3000/users/removeFollowing`;
+    const url = `${apiUrl}/users/removeFollowing`;
 
     const response = await fetch(url, {
       method: "PUT",
       headers: {
         "access-control-allow-origin": "*",
         "Content-Type": "application/json",
+        Authorization: "Bearer " + body.token,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(body.data),
     });
     const myData = await response.json();
 
@@ -84,8 +87,10 @@ export const removeFollowing = createAsyncThunk(
 export const getUserById = createAsyncThunk(
   "/users/getUserById",
 
-  async (id) => {
-    const url = `http://localhost:3000/users/getUserById/${id}`;
+  async (body) => {
+    const url = `${apiUrl}/users/getUserById/${body.id}`;
+
+    console.log(body);
 
     try {
       const response = await fetch(url, {
@@ -93,6 +98,7 @@ export const getUserById = createAsyncThunk(
         headers: {
           "access-control-allow-origin": "*",
           "Content-Type": "application/json",
+          Authorization: "Bearer " + body.token,
         },
       });
 
@@ -111,14 +117,15 @@ export const getUserById = createAsyncThunk(
 
 export const getFollowers = createAsyncThunk(
   "/users/getFollowers",
-  async (id) => {
-    const url = `http://localhost:3000/users/getUserFollowers/${id}`;
+  async (body) => {
+    const url = `${apiUrl}/users/getUserFollowers/${body.id}`;
 
     const response = await fetch(url, {
       method: "GET",
       headers: {
         "access-control-allow-origin": "*",
         "Content-Type": "application/json",
+        Authorization: "Bearer " + body.token,
       },
     });
     const myData = await response.json();
@@ -128,14 +135,15 @@ export const getFollowers = createAsyncThunk(
 );
 export const getFollowings = createAsyncThunk(
   "/users/getFollowings",
-  async (id) => {
-    const url = `http://localhost:3000/users/getUserFollowing/${id}`;
+  async (body) => {
+    const url = `${apiUrl}/users/getUserFollowing/${body.id}`;
 
     const response = await fetch(url, {
       method: "GET",
       headers: {
         "access-control-allow-origin": "*",
         "Content-Type": "application/json",
+        Authorization: "Bearer " + body.token,
       },
     });
     const myData = await response.json();
@@ -165,7 +173,7 @@ const userSlice = createSlice({
     },
     setUserProfileId: (state, action) => {
       state.profileUserId = action.payload;
-      localStorage.setItem("profileUserId", action.payload);
+      localStorage.setItem("profileUserId", action.payload.id);
     },
     setUserFollowingId: (state, action) => {
       state.followingUserId = action.payload;

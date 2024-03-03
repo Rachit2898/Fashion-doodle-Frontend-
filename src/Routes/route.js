@@ -18,6 +18,12 @@ import Request from "../screens/request";
 import Explore from "../screens/explore";
 import Profile from "../screens/profile";
 import Profiles from "../screens/profiles";
+import ModalDashboard from "../screens/modalDashboard";
+import HomePage from "../screens/homePage";
+import HomePage2 from "../screens/homePage2";
+import Terms from "../screens/terms";
+import Privacy from "../screens/privacy";
+import About from "../screens/about";
 
 const AppRoutes = () => {
   const navigate = useNavigate();
@@ -32,33 +38,42 @@ const AppRoutes = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getAllRole());
+    dispatch(
+      getAllRole(signInData?.Table?.token || localStorage.getItem("token"))
+    );
   }, []);
+  const storedToken = localStorage.getItem("token");
+  console.log("Token changed", !storedToken);
+
+  console.log("hello", signInData?.Table?.token);
 
   useEffect(() => {
     let isMounted = true;
     const handleTokenChange = () => {
-      if (!!signInData.access_token) {
-        dispatch(getUserByToken(signInData.access_token));
+      if (!!signInData?.Table?.token) {
+        dispatch(
+          getUserByToken(
+            signInData?.Table?.token || localStorage.getItem("token")
+          )
+        );
         setToken(true);
         navigate("/desiners");
       } else {
-        const storedToken = localStorage.getItem("token");
-
-        if (isMounted) {
-          if (!!storedToken) {
-            const decodedToken = jwtDecode(storedToken);
-            const isTokenExpired = decodedToken.exp < Date.now() / 1000;
-            if (!isTokenExpired) {
-              dispatch(getUserByToken(storedToken));
-              setToken(true);
-            } else {
-              localStorage.removeItem("token");
-              navigate("/");
-            }
+        if (!!storedToken) {
+          console.log({ storedToken });
+          const decodedToken = jwtDecode(storedToken);
+          console.log({ decodedToken });
+          const isTokenExpired = decodedToken.exp < Date.now() / 1000;
+          console.log("Token expired", isTokenExpired);
+          if (!isTokenExpired) {
+            dispatch(getUserByToken(storedToken));
+            setToken(true);
           } else {
+            localStorage.removeItem("token");
             navigate("/");
           }
+        } else {
+          navigate("/");
         }
       }
     };
@@ -67,15 +82,20 @@ const AppRoutes = () => {
     return () => {
       isMounted = false;
     };
-  }, [signInData.access_token, dispatch]);
+  }, [signInData?.Table?.token, dispatch]);
 
   return (
     <>
       {!token ? (
         <Routes>
-          <Route path="/*" element={<Login />} />
+          <Route path="/*" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/getStarted" element={<HomePage2 />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/about" element={<About />} />
         </Routes>
       ) : (
         <Routes>
@@ -90,6 +110,7 @@ const AppRoutes = () => {
           <Route path="/request" element={<Request />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profiles" element={<Profiles />} />
+          <Route path="/modal" element={<ModalDashboard />} />
         </Routes>
       )}
     </>

@@ -13,12 +13,30 @@ import {
 import { Provider, useDispatch, useSelector } from "react-redux";
 
 const FollowModal = ({ isOpen, onClick, onClose, message }) => {
+  const { signInData } = useSelector((state) => ({
+    ...state.auth,
+  }));
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const profileViewHandler = (id) => {
-    dispatch(getUserById(id));
-    dispatch(getFollowings(id));
-    dispatch(getFollowers(id));
+    dispatch(
+      getUserById({
+        id: id,
+        token: signInData?.Table?.token || localStorage.getItem("token"),
+      })
+    );
+    dispatch(
+      getFollowings({
+        id: id,
+        token: signInData?.Table?.token || localStorage.getItem("token"),
+      })
+    );
+    dispatch(
+      getFollowers({
+        id: id,
+        token: signInData?.Table?.token || localStorage.getItem("token"),
+      })
+    );
     navigate("/profiles");
     onClose();
   };
@@ -30,8 +48,11 @@ const FollowModal = ({ isOpen, onClick, onClose, message }) => {
     console.log({ userId: localStorage.getItem("userId"), followingId: id });
     dispatch(
       removeFollowing({
-        userId: localStorage.getItem("userId"),
-        followingId: id,
+        data: {
+          userId: localStorage.getItem("userId"),
+          followingId: id,
+        },
+        token: signInData?.Table?.token || localStorage.getItem("token"),
       })
     );
     closeModal();
@@ -114,7 +135,7 @@ const FollowModal = ({ isOpen, onClick, onClose, message }) => {
               </div>
 
               <div class="p-4 md:p-5 text-center">
-                {message.following.map((item) => {
+                {message?.following?.map((item) => {
                   return (
                     <div class="flex my-3 justify-between ">
                       <button onClick={() => profileViewHandler(item.id)}>

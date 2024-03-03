@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/modal";
+import PostModal from "../components/postShowModal";
 import LeftSideBar from "../components/leftSideBar";
 import firebase from "firebase/compat/app";
 import Search from "../images/search.png";
@@ -40,13 +41,19 @@ export default function DesignersTab() {
   const [showComments, setShowComments] = useState("");
   const [showEmojis, setShowEmojis] = useState(false);
   const [comment, setComment] = useState("");
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [id, setId] = useState(-1);
   const [postId, setPostId] = useState(-1);
   const [show, setShow] = useState(false);
   const [commentId, setCommentId] = useState(-1);
 
-  const { getAllUsersData, loading } = useSelector((state) => ({
-    ...state.user,
+  const { getAllUsersData, loading, getFollowingData } = useSelector(
+    (state) => ({
+      ...state.user,
+    })
+  );
+  const { signInData } = useSelector((state) => ({
+    ...state.auth,
   }));
 
   const { postByIdData, allPostsData, getCommentsByIdData, followingUserId } =
@@ -56,11 +63,13 @@ export default function DesignersTab() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getAllPosts());
-    dispatch(getAllUsers({ signal: abortController.signal }));
-    return () => {
-      abortController.abort();
-    };
+    console.log(allPostsData);
+    dispatch(
+      getAllPosts(signInData?.Table?.token || localStorage.getItem("token"))
+    );
+    dispatch(
+      getAllUsers(signInData?.Table?.token || localStorage.getItem("token"))
+    );
   }, []);
 
   function getTimeAgo(timestamp) {
@@ -88,7 +97,12 @@ export default function DesignersTab() {
   const formattedTimeAgo = getTimeAgo(timestamp);
 
   const likePostHandler = (id) => {
-    dispatch(likePost({ userId: localStorage.getItem("userId"), postId: id }));
+    dispatch(
+      likePost({
+        data: { userId: localStorage.getItem("userId"), postId: id },
+        token: signInData?.Table?.token || localStorage.getItem("token"),
+      })
+    );
     dispatch(incrementLikes(id));
   };
 
@@ -104,16 +118,24 @@ export default function DesignersTab() {
   const handlePostComment = (postId) => {
     dispatch(
       addCommentToPost({
-        content: comment,
-        postId: postId,
-        userId: localStorage.getItem("userId"),
+        data: {
+          content: comment,
+          postId: postId,
+          userId: localStorage.getItem("userId"),
+        },
+        token: signInData?.Table?.token || localStorage.getItem("token"),
       })
     );
     setComment("");
     // sendMessage(comment);
   };
   const commentsShowHandler = (id) => {
-    dispatch(getCommentsById(id));
+    dispatch(
+      getCommentsById({
+        id: id,
+        token: signInData?.Table?.token || localStorage.getItem("token"),
+      })
+    );
     setId(id);
     setShowComments((prev) => !prev);
   };
@@ -161,9 +183,19 @@ export default function DesignersTab() {
 
   const handleModalClick = () => {
     if (commentId) {
-      dispatch(deleteComment(commentId));
+      dispatch(
+        deleteComment({
+          id: commentId,
+          token: signInData?.Table?.token || localStorage.getItem("token"),
+        })
+      );
     } else {
-      dispatch(deletePost(postId));
+      dispatch(
+        deletePost({
+          id: postId,
+          token: signInData?.Table?.token || localStorage.getItem("token"),
+        })
+      );
     }
     closeModal();
   };
@@ -173,11 +205,40 @@ export default function DesignersTab() {
   console.log(userId);
 
   const addFollowingHandler = (id) => {
-    dispatch(addFollowing({ userId: userId, followingId: id }));
+    dispatch(
+      addFollowing({
+        data: { userId: userId, followingId: id },
+        token: signInData?.Table?.token || localStorage.getItem("token"),
+      })
+    );
   };
   const profileViewHandler = (id) => {
-    dispatch(setUserProfileId(id));
+    dispatch(
+      setUserProfileId({
+        id: id,
+        token: signInData?.Table?.token || localStorage.getItem("token"),
+      })
+    );
     navigate("/profiles");
+  };
+
+  const openPostModals = (id) => {
+    dispatch(
+      getPostById({
+        id: id,
+        token: signInData?.Table?.token || localStorage.getItem("token"),
+      })
+    );
+    dispatch(
+      getCommentsById({
+        id: id,
+        token: signInData?.Table?.token || localStorage.getItem("token"),
+      })
+    );
+    setIsPostModalOpen(true);
+  };
+  const closePostModal = (id) => {
+    setIsPostModalOpen(false);
   };
 
   return (
@@ -185,18 +246,24 @@ export default function DesignersTab() {
       <div class="rounded-lg bg-white pb-[3%]">
         <div class="flex border-b-[2px] h-16 border-b-black rounded-tl-md rounded-tr-md">
           <div class="flex w-96 justify-between px-10">
-            <label class="inline-flex items-center">
+            <button
+              onClick={() => navigate("/selection")}
+              class="inline-flex items-center"
+            >
               <span class="ml-2 text-[#000] font-normal font-poppins">
                 Designer
               </span>
-            </label>
+            </button>
 
-            <label class="inline-flex items-center">
+            <button
+              onClick={() => navigate("/modal")}
+              class="inline-flex items-center"
+            >
               <span class="ml-2 text-[#000]">Model</span>
-            </label>
+            </button>
 
             <label class="inline-flex items-center">
-              <span class="ml-2 text-[#000]">Enjoyer</span>
+              <span class="ml-2 text-[#000]">User</span>
             </label>
           </div>
         </div>
@@ -211,6 +278,15 @@ export default function DesignersTab() {
                 : "Are you sure you want to delete this post"
             }
             onClose={closeModal}
+          />
+        </div>
+
+        <div class="z-50">
+          <PostModal
+            onClick={handleModalClick}
+            isOpen={isPostModalOpen}
+            onClose={closePostModal}
+            message={getFollowingData}
           />
         </div>
 
@@ -281,7 +357,8 @@ export default function DesignersTab() {
                 </div>
               </div>
             </div>
-            {allPostsData?.Posts?.slice()
+            {console.log(allPostsData?.Table)}
+            {allPostsData?.Table?.slice()
               .sort((a, b) => b.id - a.id)
               .map((item) => {
                 return (
@@ -304,7 +381,9 @@ export default function DesignersTab() {
                           className="h-8 rounded-full p-[3px]"
                         />
                         <div>
-                          <p class="text-[12px] font-normal ">Jerry Mathews</p>
+                          <p class="text-[12px] font-normal ">
+                            {item.userName}
+                          </p>
                           <p class="text-[10px] font-normal opacity-[0.6] ">
                             New York City,NY
                           </p>
@@ -322,13 +401,16 @@ export default function DesignersTab() {
                     <div class="mt-2 px-8">
                       <p class="text-[12px] font-normal mb-2">{item.caption}</p>
                     </div>
-                    <div class="flex items-center justify-center mt-2 px-16">
+                    <button
+                      class="flex items-center justify-center mt-2 px-16"
+                      onClick={() => openPostModals(item.id)}
+                    >
                       <img
                         src={item.imageUrls}
                         alt="Search Icon"
                         className="  p-[3px]"
                       />
-                    </div>
+                    </button>
 
                     <div class="flex gap-10 ml-5 ">
                       <button

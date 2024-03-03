@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { apiUrl } from "../../utils/utils";
 
 export const getAllRole = createAsyncThunk("auth/getAllRoles", async () => {
-  const url = `http://localhost:3000/roles/getAllRole`;
+  const url = `${apiUrl}/roles/getAllRole`;
 
   const response = await fetch(url, {
     method: "GET",
@@ -16,8 +17,7 @@ export const getAllRole = createAsyncThunk("auth/getAllRoles", async () => {
 });
 
 export const signUp = createAsyncThunk("auth/signUp", async (body) => {
-  console.log(body);
-  const url = `http://localhost:3000/auth/sign-up`;
+  const url = `${apiUrl}/auth/sign-up`;
 
   const response = await fetch(url, {
     method: "POST",
@@ -34,7 +34,7 @@ export const signUp = createAsyncThunk("auth/signUp", async (body) => {
 
 export const signIn = createAsyncThunk("auth/sign-in", async (body) => {
   console.log(body);
-  const url = `http://localhost:3000/auth/sign-in`;
+  const url = `${apiUrl}/auth/sign-in`;
 
   const response = await fetch(url, {
     method: "POST",
@@ -50,15 +50,15 @@ export const signIn = createAsyncThunk("auth/sign-in", async (body) => {
 });
 export const getUserByToken = createAsyncThunk(
   "auth/getUserByToken",
-  async (body) => {
+  async (token) => {
     try {
-      const url = "http://localhost:3000/auth/get-user-by-token";
+      const url = `${apiUrl}/auth/get-user-by-token`;
 
       const response = await fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${body}`,
+          Authorization: "Bearer " + token,
         },
       });
 
@@ -118,7 +118,7 @@ const authSlice = createSlice({
       .addCase(signIn.fulfilled, (state, action) => {
         state.loading = false;
         state.signInData = action.payload;
-        localStorage.setItem("token", action.payload.access_token);
+        localStorage.setItem("token", action.payload.Table.token);
       })
       .addCase(signIn.rejected, (state, action) => {
         state.loading = false;

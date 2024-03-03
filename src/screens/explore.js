@@ -20,7 +20,7 @@ export default function DesignersTab() {
             </label>
 
             <label class="inline-flex items-center">
-              <span class="ml-2 text-[#000]">Enjoyer</span>
+              <span class="ml-2 text-[#000]">User</span>
             </label>
           </div>
         </div>

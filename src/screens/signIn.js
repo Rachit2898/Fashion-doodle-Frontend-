@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import { getAllRole, signUp } from "../redux/features/auth";
+import { useNavigate } from "react-router-dom";
 function SignIn() {
   const dispatch = useDispatch();
-  const { allRoles } = useSelector((state) => ({
+  const navigate = useNavigate();
+  const { allRoles, signUpData } = useSelector((state) => ({
     ...state.auth,
   }));
 
@@ -32,11 +34,11 @@ function SignIn() {
     let id;
 
     if (name === "user") {
-      id = 3;
+      id = 4;
     } else if (name === "model") {
       id = 2;
     } else if (name === "designer") {
-      id = 1;
+      id = 3;
     }
 
     setUserType((prevUserType) => ({
@@ -87,6 +89,12 @@ function SignIn() {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
+  useEffect(() => {
+    if (signUpData?.statusCode != "200") {
+      setError(signUpData.message);
+    }
+  }, [signUpData]);
+
   return (
     <div class="bg-gradient-to-r lg:h-screen md:h-screen  from-[rgba(0,131,176,0.37)] to-[rgba(219,0,158,0.11)] lg:py-[5%] lg:pl-[9%] lg:pr-[20%] p-5">
       <div class=" rounded-lg bg-white ">
@@ -97,7 +105,7 @@ function SignIn() {
                 Lets Begin !!!
               </p>
             </div>
-            <div class="py-8">
+            <div class="py-2">
               <p class="text-black font-poppins text-5xl font-medium leading-normal">
                 Sign Up
               </p>
@@ -195,6 +203,14 @@ function SignIn() {
                   Lets Begin...
                 </button>
               </div>
+              <div class="w-48 h-10rounded-full flex items-center justify-center mx-auto my-5">
+                <button
+                  onClick={() => navigate("/login")}
+                  class="text-[#7D97AA] font-poppins text-20 font-[600] leading-normal"
+                >
+                  Already have an account.
+                </button>
+              </div>
               <div class=" flex flex-col  ">
                 <div class="w-[80%]   mx-auto">
                   <div class="flex justify-around pt-4 lg:pt-0">
@@ -287,10 +303,9 @@ function SignIn() {
               </div>
             </div>
           </div>
-          <div class="flex  justify-end mt-5 lg:mt-0 ">
+          <div class="flex  justify-end mt-5 lg:mt-0 bg-[#f9d7d7] ">
             <img
-              src="https://firebasestorage.googleapis.com/v0/b/droodle-3024f.appspot.com/o/files%2FRectangle%20699.png?alt=media&token=8731fa77-f7aa-4bb4-9c76-4f1e3c47df15"
-              alt="Your Image"
+              src={require("../images/Logo.png")}
               class="lg:h-[83.7vh]  rounded-lg"
             />
           </div>
